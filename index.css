@@ -1,0 +1,18 @@
+/*
+    index.css
+    globals and document styling
+
+    @author: Harshvardhan Pandit
+    @email : me@harshp.com
+ */
+
+/* add some spacing to the body */
+body {
+    margin-left: 25px;
+    margin-right: 5px;
+}
+/* border the grids (panels) */
+.grid__col {
+    border: 5px solid black;
+    min-height: 99vh;
+}
