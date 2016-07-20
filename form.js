@@ -189,6 +189,7 @@ var form_add_element_data = function() {
  * @return {boolean} operation status
  */
 var form_add_property = function(field_name, field) {
+    console.debug("add property to form", field_name, field);
     // create a new label to add to the form
     var label = $('<label>');
     label.addClass('form-label');
@@ -217,15 +218,23 @@ var form_add_property = function(field_name, field) {
     } else if (field_type == "select") {
         // TODO: restore field value
         var select = $('<select>', {id: field_name.replace(':', '-')});
-        // console.debug(field.range, experiment_data[field.range]);
-        if (experiment_data[field.range] != null) {
-            experiment_data[field.range].forEach(function(field_obj, index) {
-                select.append($('<option>', {
-                    attr: {value: field_obj["rdfs:label"]},
-                    html: field_obj["rdfs:label"]
-                }));
-            })
+        var field_range_vals = null;
+        if (field.range.constructor === Array) {
+            field_range_vals = field.range;
+        } else {
+            field_range_vals = [field.range];
         }
+        console.debug("field range for property", field_range_vals);
+        field_range_vals.forEach(function(field_range, index) {
+            if (experiment_data[field_range] != null) {
+                experiment_data[field_range].forEach(function(field_obj, index) {
+                    select.append($('<option>', {
+                        attr: {value: field_obj["rdfs:label"]},
+                        html: field_obj["rdfs:label"]
+                    }));
+                })
+            }
+        });
         if (field.required) {
             select.prop('required', true);
         }
