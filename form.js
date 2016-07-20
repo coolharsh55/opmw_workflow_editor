@@ -218,6 +218,9 @@ var form_add_property = function(field_name, field) {
     } else if (field_type == "select") {
         // TODO: restore field value
         var select = $('<select>', {id: field_name.replace(':', '-')});
+        // get the type of the field range
+        // it can be single (string) or multiple (array)
+        // convert single to [single] to handle both cases with the same code
         var field_range_vals = null;
         if (field.range.constructor === Array) {
             field_range_vals = field.range;
@@ -225,6 +228,12 @@ var form_add_property = function(field_name, field) {
             field_range_vals = [field.range];
         }
         console.debug("field range for property", field_range_vals);
+        if (!field.required) {
+            select.append($('<option>'), {
+                attr: {value: null},
+                html: 'null',
+            });
+        }
         field_range_vals.forEach(function(field_range, index) {
             if (experiment_data[field_range] != null) {
                 experiment_data[field_range].forEach(function(field_obj, index) {
@@ -237,6 +246,18 @@ var form_add_property = function(field_name, field) {
         });
         if (field.required) {
             select.prop('required', true);
+        }
+        // if this is a saved object, restore the value in the dropdown
+        // the value in the dropdown is the label of the linked object
+        // so check if the value is null (nothing selected)
+        // or it is an object, in which case use its rdfs:label property
+        if (form_data.object.id != null) {
+            var previous_value = form_data.object[field_name];
+            if (previous_value == null || previous_value == 'null') {
+                select.val('null');
+            } else {
+                select.val(form_data.object[field_name]["rdfs:label"]);
+            }
         }
         label.append(select);
     // input is a multi-select field

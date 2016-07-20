@@ -1,8 +1,7 @@
 # dev.md
 
 ## things to do
- - add step to form
- - pre-choose selected element in select inputs upon element reload
+ 
  - multi-select
  - restore textarea contents upon element reload
  - multiple text inputs for input dimension="multi"
