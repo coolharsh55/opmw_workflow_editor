@@ -33,13 +33,13 @@ $('document').ready(function() {
     $.getJSON("opmw.json", function(json) {
         OPMW = json;
         // for debug purposes, ALWAYS log the OPMW to console
-        console.log("opmw.json", OPMW);
+        console.debug("opmw.json", OPMW);
         // TODO: set up types for experiment data
         // add each type from OPMW.elements to experiment_data
         Object.keys(OPMW.elements).forEach(function(type, index) {
             experiment_data[type] = [];
         });
-        console.log("experiment data", experiment_data);
+        console.debug("experiment data", experiment_data);
 
         // make form for experiment
         form_make(
@@ -54,3 +54,5 @@ $('#form-save').click(function() {
 $('#form-cancel').click(function() {
     form_cancel();
 });
+
+console.debug('loaded index.js');

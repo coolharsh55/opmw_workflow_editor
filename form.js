@@ -40,7 +40,7 @@ var form_data = {
 var form_save = function() {
     // validate form before saving
     if (!form_validate()) {
-        console.log("save failed: form is not validated");
+        console.error("save failed: form is not validated");
         return false;
     }
 
@@ -48,13 +48,14 @@ var form_save = function() {
     if (form_data.object["rdfs:label"] in experiment_data_labels) {
         if (experiment_data_labels[form_data.object["rdfs:label"]] != form_data.object) {
             alert('label already in use');
+            console.warn('duplicate element ID', form_data.object["rdfs:label"]);
             return false;
         }
     }
 
     // add form data to element
     if (!form_add_element_data()) {
-        console.log("save failed: could not add form data to element");
+        console.error("save failed: could not add form data to element");
     }
 
     // add form element to element_data
@@ -73,7 +74,7 @@ var form_save = function() {
             $('#variables_param ul').append('<li class="object-instance">' + form_data.object["rdfs:label"]);
         }
     }
-    console.log(experiment_data);
+    console.debug("saved element", form_data.object, experiment_data);
 
     // update label in tree
     // if (form_data.type == "opmw:WorkflowTemplate") {
@@ -127,11 +128,11 @@ var form_add_element_data = function() {
 
     // TODO: add form data to form element
     Object.keys(form_data.schema.properties).forEach(function(key, index) {
-        console.log(
-            key,
-            form_data.schema.properties[key],
-            $("input[name='" + key + "']").val(),
-            key in form_data.object);
+        // console.debug(
+        //     key,
+        //     form_data.schema.properties[key],
+        //     $("input[name='" + key + "']").val(),
+        //     key in form_data.object);
         var field_type = form_data.schema.properties[key].input;
         if (field_type == "text") {
             // create array if type is list
@@ -149,21 +150,20 @@ var form_add_element_data = function() {
                 // get label of selected element
                 var label_related_obj =
                     $("#" + key.replace(':', '-') + " option:selected").text();
-                console.log("select value", label_related_obj);
+                // console.debug("select value", label_related_obj);
                 // get related element object
                 var related_obj = experiment_data_labels[label_related_obj];
                 // check if element object exists (it should!)
                 if (related_obj == null) {
-                    console.log("error finding related object with label", label_related_obj);
+                    console.error("finding related object with label", label_related_obj);
                 } else {
-
                     form_data.object[key] = related_obj;
                     related_obj.links[key].push(form_data.object);
                 }
             }
         }
     });
-    console.log("updated form_data.object", form_data.object);
+    console.debug("updated form_data.object", form_data.object);
 
     // TODO: property and relation resolution
     // NOTE:
@@ -217,7 +217,7 @@ var form_add_property = function(field_name, field) {
     } else if (field_type == "select") {
         // TODO: restore field value
         var select = $('<select>', {id: field_name.replace(':', '-')});
-        console.log(field.range, experiment_data[field.range]);
+        // console.debug(field.range, experiment_data[field.range]);
         if (experiment_data[field.range] != null) {
             experiment_data[field.range].forEach(function(field_obj, index) {
                 select.append($('<option>', {
@@ -252,7 +252,7 @@ var form_add_property = function(field_name, field) {
  * @return {nothing}
  */
 var form_make = function(type, schema, object=null) {
-    console.log("creating form for", type, object);
+    console.debug("creating form for", type, schema, object);
     // TODO: check, validate, save previous form data before making new one
     // NOTE: this should not be done in this function (?)
     //      the form data save status could be added to the form element
@@ -263,7 +263,7 @@ var form_make = function(type, schema, object=null) {
     // if it is null, then we create a new element
     if (object == null) {
         // create new element for schema
-        console.log("element schema", schema);
+        // console.debug("element schema", schema);
         object = {id: null, schema: schema, type: type, links: {}};
         Object.keys(schema.properties).forEach(function(key, index) {
             var property = schema.properties[key];
@@ -276,7 +276,7 @@ var form_make = function(type, schema, object=null) {
         Object.keys(schema.relations).forEach(function(key, index) {
             object.links[key] = [];
         });
-        console.log("new schema object", object);
+        console.debug("new schema object", object);
     }
     // add details to form object
     form_data.type = type;
@@ -306,7 +306,7 @@ var form_make = function(type, schema, object=null) {
             object.links[key].forEach(function(ele, index) {
                 related_links.append($('<li>', {text: ele["rdfs:label"]}));
             });
-            console.log(related_links);
+            // console.debug(related_links);
             $('#form-relations').append(
                 $('<li>', {text: schema.relations[key].label}).append(related_links));
         });
@@ -314,3 +314,5 @@ var form_make = function(type, schema, object=null) {
 
     return true;
 }
+
+console.debug('loaded form.js');

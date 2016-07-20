@@ -64,3 +64,5 @@ $('body').on('click', '.object-instance', function(){
         object
     );
 });
+
+console.debug('loaded tree.js');
