@@ -66,11 +66,11 @@ var form_save = function() {
         if (form_data.type == "opmw:WorkflowTemplate") {
             $('#tree-experiment').text(form_data.object["rdfs:label"]);
         } else if (form_data.type == "opmw:WorkflowTemplateProcess") {
-            $('#steps ul').append('<li>' + form_data.object["rdfs:label"]);
+            $('#steps ul').append('<li class="object-instance">' + form_data.object["rdfs:label"]);
         } else if (form_data.type == "opmw:DataVariable") {
-            $('#variables_data ul').append('<li>' + form_data.object["rdfs:label"]);
+            $('#variables_data ul').append('<li class="object-instance">' + form_data.object["rdfs:label"]);
         } else if (form_data.type == "opmw:ParameterVariable") {
-            $('#variables_param ul').append('<li>' + form_data.object["rdfs:label"]);
+            $('#variables_param ul').append('<li class="object-instance">' + form_data.object["rdfs:label"]);
         }
     }
     console.log(experiment_data);

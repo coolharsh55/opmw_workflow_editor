@@ -27,7 +27,7 @@ $('#add-param-var').click(function() {
         OPMW.elements["opmw:ParameterVariable"], null);
 });
 // on click event handler for + button in Step
-$('#add-step-var').click(function() {
+$('#add-step').click(function() {
     form_make(
         "opmw:WorkflowTemplateProcess",
         OPMW.elements["opmw:WorkflowTemplateProcess"], null);
@@ -52,4 +52,15 @@ $('#tree-experiment').click(function() {
     } else {
         // do nothing
     }
+});
+
+// object instances
+$('body').on('click', '.object-instance', function(){
+    console.log('object-instance click', $(this).text());
+    var object = experiment_data_labels[$(this).text()];
+    form_make(
+        object.type,
+        OPMW.elements[object.type],
+        object
+    );
 });
