@@ -348,6 +348,13 @@ var form_add_property = function(field_name, field) {
  */
 var form_make = function(type, schema, object=null) {
     console.debug("creating form for", type, schema, object);
+    if (
+            object != null &&
+            object["rdfs:label"] != null &&
+            object["rdfs:label"] === form_data.object["rdfs:label"]) {
+        console.debug("skipping form creation for same object");
+        return true;
+    }
     // TODO: check, validate, save previous form data before making new one
     // NOTE: this should not be done in this function (?)
     //      the form data save status could be added to the form element

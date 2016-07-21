@@ -33,6 +33,19 @@ var paper = new joint.dia.Paper({
 
 
 /**
+ * onClick handler for elements on graph
+ * upon clicking the element, the appropriate element should be loaded in form
+ */
+paper.on('cell:pointerclick', function(cellView, evt, x, y) {
+    // console.debug(cellView, evt, x, y);
+    var element_label = cellView.model.attributes.attrs.text.text;
+    var object = experiment_data_labels[element_label];
+    // console.debug(element_label);
+    // console.debug("element clicked", experiment_data_labels[element_label]);
+    form_make(object.type, object.schema, object);
+});
+
+/**
  * Basic shapes in OPMW diagram
  * These shapes represent the basic OPMW types
  * These are then cloned to create the actual diagram
