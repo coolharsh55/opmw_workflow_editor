@@ -74,19 +74,83 @@ var form_save = function() {
             $('#variables_param ul').append('<li class="object-instance">' + form_data.object["rdfs:label"]);
         }
     }
+
+    // add diagram for element
+    if (!form_add_diagram()) {
+        console.error("save failed: could not render diagram for element");
+    }
+
     console.debug("saved element", form_data.object, experiment_data);
+    return true;
+}
 
-    // update label in tree
-    // if (form_data.type == "opmw:WorkflowTemplate") {
-    //     $('#tree-experiment').text(form_data.object["rdfs:label"]);
-    // } else if (form_data.type == "opmw:WorkflowTemplateProcess") {
-    //     $('#steps ul').append('<li>' + form_data.object["rdfs:label"]);
-    // } else if (form_data.type == "opmw:DataVariable") {
-    //     $('#variables_data ul').append('<li>' + form_data.object["rdfs:label"]);
-    // } else if (form_data.type == "opmw:ParameterVariable") {
-    //     $('#variables_param ul').append('<li>' + form_data.object["rdfs:label"]);
-    // }
 
+/**
+ * render diagram for element in form
+ * @return {bool} operation status
+ */
+var form_add_diagram = function() {
+    var draw_diag = null;
+    var diag_properties = null;
+
+    // data variable
+    if (form_data.type == "opmw:DataVariable") {
+        if (form_data.object["opmw:isGeneratedBy"]) {
+            draw_diag = diag_add_data_op_var;
+            diag_properties = {
+                text: form_data.object["rdfs:label"],
+                source: null
+            };
+            if (form_data.object["opmw:isGeneratedBy"]) {
+                diag_properties.source = form_data.object["opmw:isGeneratedBy"].diagram;
+            }
+        } else {
+            draw_diag = diag_add_data_var;
+            diag_properties = {
+                text: form_data.object["rdfs:label"]
+            };
+        }
+    }
+
+    // parameter variable
+    else if (form_data.type == "opmw:ParameterVariable") {
+        draw_diag = diag_add_param_var;
+        diag_properties = {
+            text: form_data.object["rdfs:label"]
+        };
+    }
+
+    // step
+    else if (form_data.type == "opmw:WorkflowTemplateProcess") {
+        draw_diag = diag_add_step;
+        diag_properties = {
+            text: form_data.object["rdfs:label"],
+            uses: null
+        };
+        if (form_data.object["opmw:uses"]) {
+            // TODO: return array of linked diagrams
+            // FIXME: set opwm:uses as array
+            diag_properties.uses = form_data.object["opmw:uses"].diagram;
+        }
+    }
+
+    // other elements
+    else {
+        // do nothing
+    }
+
+    // attach diagram ID to the saved object instance
+    if (diag_properties == null) {
+        console.debug("no diagram added for element", form_data.object);
+    } else {
+        diag_properties.diagram = form_data.object.diagram;
+        var diag_id = draw_diag(diag_properties);
+        if (diag_id == null) {
+            console.error("failed: drawing diagram for element", form_data.object);
+        } else {
+            form_data.object.diagram = diag_id;
+        }
+    }
     return true;
 }
 
@@ -155,7 +219,8 @@ var form_add_element_data = function() {
                 var related_obj = experiment_data_labels[label_related_obj];
                 // check if element object exists (it should!)
                 if (related_obj == null) {
-                    console.error("finding related object with label", label_related_obj);
+                    // console.error("finding related object with label", label_related_obj);
+                    form_data.object[key] = related_obj;
                 } else {
                     form_data.object[key] = related_obj;
                     related_obj.links[key].push(form_data.object);

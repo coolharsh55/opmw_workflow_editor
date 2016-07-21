@@ -7,9 +7,10 @@
  - multiple text inputs for input dimension="multi"
  - check: form object does not remain the same after changing forms
  - update label for node
+ - remove relations for step (e.g.) where value is empty
 
 ### attaching element to diagram
- - create new diagram for data, param, step
+ - add onclick event for diagram to open element in form automatically
 
 ### moving between elements
 ### arranging elements in diagram
