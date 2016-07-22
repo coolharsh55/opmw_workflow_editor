@@ -55,4 +55,19 @@ $('#form-cancel').click(function() {
     form_cancel();
 });
 
+// input file event
+// snippet copied from
+// https://stackoverflow.com/questions/4950567/reading-client-side-text-file-using-javascript
+document.getElementById('input-file').addEventListener('change', readFile, false);
+function readFile (evt) {
+   var files = evt.target.files;
+   var file = files[0];
+   var reader = new FileReader();
+   reader.onload = function() {
+     // console.debug("imported file", this.result);
+     serialize_import(this.result);
+   }
+   reader.readAsText(file)
+}
+
 console.debug('loaded index.js');

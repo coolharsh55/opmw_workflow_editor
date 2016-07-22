@@ -64,6 +64,14 @@
                 <h2>diagram</h2>
                 <hr>
                 <div id='diagram'></div>
+                <hr>
+                <div id='toolbox'>
+                    <a id='export-data' href="" download="data.json" onclick="serialize_export();">export data</a>
+                    <span class='snap-right'>
+                        import data
+                        <input type="file" id="input-file" name="file" enctype="multipart/form-data"/>
+                    </span>
+                </div>
             </div>
             <!-- tree -->
             <div id='div-tree' class="grid__col grid__col--1-of-8">
@@ -116,5 +124,7 @@
         <script src="form.js"></script>
         <!-- tree functions and data -->
         <script src="tree.js"></script>
+        <!-- serialization for experiment data and diagram -->
+        <script src="serialize.js"></script>
     </body>
 </html>
