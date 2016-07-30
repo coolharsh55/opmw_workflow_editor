@@ -202,8 +202,13 @@ var form_add_element_data = function() {
             // create array if type is list
             if (form_data.schema.properties[key].dimension == "multi" ||
                     form_data.schema.properties[key].dimension > 1) {
-                // TODO: add values to array
-                form_data.object[key] = [$("input[name='" + key + "']").val()];
+                field_vals = [];
+                $("input[name='" + key + "']").each(function(){
+                    console.log($(this).val());
+                    field_vals.push($(this).val());
+                });
+                console.log("field vals", field_vals);
+                form_data.object[key] = field_vals;
             } else {
                 form_data.object[key] = $("input[name='" + key + "']").val();
             }
@@ -270,15 +275,67 @@ var form_add_property = function(field_name, field) {
     var field_type = field.input;
     // input is a text field
     if (field.input == "text") {
-        var input = $("<input>", {
-            field_type: 'text',
-            name: field_name,
-            value: form_data.object[field_name]
-        });
-        if (field.required) {
-            input.prop('required', true);
+        if (field.dimension == "multi" || field.dimension > 1) {
+            var span = $("<span>", {
+                class: 'snap-right',
+                text: '+',
+                click: function(e) {
+                    var input = $("<input>", {
+                        field_type: 'text',
+                        name: field_name,
+                        value: ''
+                    });
+                    if (field.required) {
+                        input.prop('required', true);
+                    }
+                    label.append(input);
+                    // TODO: remove this input node
+                    // var span = $("<span>", {
+                    //     class: 'snap-right',
+                    //     text: '-',
+                    //     click: function(e) {
+                    //        // TODO: delete this input node
+                    //        console.log('delete input node');
+                    //     }
+                    // });
+                    // label.append(span);
+                }
+            });
+            label.append(span);
+            if (form_data.object.id == null) {
+                if (field.required) {
+                        var input = $("<input>", {
+                        field_type: 'text',
+                        name: field_name,
+                        required: true,
+                        value: form_data.object[field_name]
+                    });
+                    label.append(input);
+                }
+            } else {
+                form_data.object[field_name].forEach(function(field_val, index) {
+                    var input = $("<input>", {
+                        field_type: 'text',
+                        name: field_name,
+                        value: field_val
+                    });
+                    if (field.required) {
+                        input.prop('required', true);
+                    }
+                    label.append(input);
+                });
+            }
+        } else {
+            var input = $("<input>", {
+                field_type: 'text',
+                name: field_name,
+                value: form_data.object[field_name]
+            });
+            if (field.required) {
+                input.prop('required', true);
+            }
+            label.append(input);
         }
-        label.append(input);
     // input is a select field
     } else if (field_type == "select") {
         // TODO: restore field value
