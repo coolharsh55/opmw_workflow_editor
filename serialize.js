@@ -86,20 +86,75 @@ var imported_json = null;
 var serialize_import = function(file_contents) {
     var file_json = JSON.parse(file_contents);
     var workflow_template_label = file_json.workflow_template;
-    var object_labels = file_json.objects;
     var diagram = file_json.diagram;
+    experiment_data_labels = file_json.objects;
 
     // TODO: check integrity of imported json
     // TODO: check compatibility of imported json
     // TODO: check imported json adheres to schema
 
-    // TODO: restore imported elements to experiment data
-    // drop existing experiment data
-    // load imported objects into experiment_data_labels
-    // construct links where required
-    // construct experiment_data from objects
+    // clear out previous experiment data
+    Object.keys(experiment_data).forEach(function(key, index) {
+        experiment_data[key] = [];
+    });
+    // remove tree nodes
+    $('#steps ul').empty();
+    $('#variables_data ul').empty();
+    $('#variables_param ul').empty();
+    // insert imported objects
+    Object.keys(experiment_data_labels).forEach(function(key, index) {
+        var object = experiment_data_labels[key];
+        // mark as imported object
+        object.id = 1;
+        // link with schema
+        object.schema = OPMW.elements[object.type];
+        // add to experiment data
+        experiment_data[object.type].push(object);
+        // add links
+        Object.keys(object.links).forEach(function(link_type, index) {
+            objects_link_type = []
+            object.links[link_type].forEach(function(object_label, index) {
+                objects_link_type.push(experiment_data_labels[object_label]);
+            });
+            object.links[link_type] = objects_link_type;
+        });
+        // add linked properties
+        var nonlinked_properties = ["id", "schema", "links", "diagram"];
+        Object.keys(object).forEach(function(property, index) {
+            if (nonlinked_properties.indexOf(property) > -1) {
+                return;
+            }
+            if (
+                property in object.schema.properties &&
+                object.schema.properties[property].range in OPMW.elements &&
+                object[property] != null
+            ) {
+                object[property] = experiment_data_labels[object[property]];
+            }
+        });
+        // add object to tree
+        if (object.type == "opmw:WorkflowTemplate") {
+            $('#tree-experiment').text(object["rdfs:label"]);
+        } else if (object.type == "opmw:WorkflowTemplateProcess") {
+            $('#steps ul').append('<li class="object-instance">' + object["rdfs:label"]);
+        } else if (object.type == "opmw:DataVariable") {
+            $('#variables_data ul').append('<li class="object-instance">' + object["rdfs:label"]);
+        } else if (object.type == "opmw:ParameterVariable") {
+            $('#variables_param ul').append('<li class="object-instance">' + object["rdfs:label"]);
+        }
+    });
 
-    // TODO: restore diagram status
+    // open workflow template in form
+    form_make(
+        "opmw:WorkflowTemplate",
+        OPMW.elements["opmw:WorkflowTemplate"],
+        experiment_data["opmw:WorkflowTemplate"][0]);
+
+    console.log("experiment data", experiment_data);
+    console.log("experiment data labels", experiment_data_labels);
+
+    // restore diagram status
+    graph.fromJSON(diagram);
 
     return true;
 }

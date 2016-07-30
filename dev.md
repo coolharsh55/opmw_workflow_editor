@@ -1,29 +1,27 @@
 # dev.md
 
-// Friday 07/22/16 at 03:57PM - 16 files in 0.29 secs
+// Saturday 07/30/16 at 01:26PM - 16 files in 0.28 secs
 
-## TODO (21)
-1. workflow_editor/diagram.js:151     create separate function for adding links
-2. workflow_editor/diagram.js:220     multiple links will be present to check from
-3. workflow_editor/diagram.js:312     multiple links will be present to check from
-4. workflow_editor/form.js:131        return array of linked diagrams
-5. workflow_editor/form.js:193        add form data to form element
-6. workflow_editor/form.js:205        add values to array
-7. workflow_editor/form.js:233        property and relation resolution
-8. workflow_editor/form.js:284        restore field value
-9. workflow_editor/form.js:329        add multi-select field type to form
-10. workflow_editor/form.js:331       restore field value
-11. workflow_editor/form.js:335       restore textarea value
-12. workflow_editor/form.js:358       check, validate, save previous form data before making new one
-13. workflow_editor/index.js:37       set up types for experiment data
-14. workflow_editor/README.md:28      detect circular links and create separate links (separate paths)
-15. workflow_editor/README.md:29      the diagram can be exported
-16. workflow_editor/README.md:38      clicking on the element highlights the element diagram
-17. workflow_editor/serialize.js:92   check integrity of imported json
-18. workflow_editor/serialize.js:93   check compatibility of imported json
-19. workflow_editor/serialize.js:94   check imported json adheres to schema
-20. workflow_editor/serialize.js:96   restore imported elements to experiment data
-21. workflow_editor/serialize.js:102  restore diagram status
+## TODO (19)
+1. workflow_editor/diagram.js:151    create separate function for adding links
+2. workflow_editor/diagram.js:220    multiple links will be present to check from
+3. workflow_editor/diagram.js:312    multiple links will be present to check from
+4. workflow_editor/form.js:131       return array of linked diagrams
+5. workflow_editor/form.js:193       add form data to form element
+6. workflow_editor/form.js:205       add values to array
+7. workflow_editor/form.js:233       property and relation resolution
+8. workflow_editor/form.js:284       restore field value
+9. workflow_editor/form.js:329       add multi-select field type to form
+10. workflow_editor/form.js:331      restore field value
+11. workflow_editor/form.js:335      restore textarea value
+12. workflow_editor/form.js:358      check, validate, save previous form data before making new one
+13. workflow_editor/index.js:37      set up types for experiment data
+14. workflow_editor/README.md:28     detect circular links and create separate links (separate paths)
+15. workflow_editor/README.md:29     the diagram can be exported
+16. workflow_editor/README.md:38     clicking on the element highlights the element diagram
+17. workflow_editor/serialize.js:92  check integrity of imported json
+18. workflow_editor/serialize.js:93  check compatibility of imported json
+19. workflow_editor/serialize.js:94  check imported json adheres to schema
 
 
 ## things to do
