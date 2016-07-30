@@ -150,6 +150,28 @@ var diagram_test = function() {
 
 // TODO: create separate function for adding links
 
+/**
+ * add link between two objects
+ * @param  {cell} from
+ * @param  {cell} to
+ * @param  {dict} options options for the link
+ * @return {boolean} operation completion status
+ */
+var diag_add_link = function(from, to, options) {
+    options = typeof options !== 'undefined' ? options : {};
+    var link = new joint.dia.Link({
+        source: {id: from},
+        target: {id: to}
+    });
+    attr = {
+        '.connection': {stroke: 'black'},
+        '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
+    };
+    $.extend(attr, options);
+    link.attr(attr);
+    link.addTo(graph);
+};
+
 
 /*
  * functions for drawing diagrams on screen
@@ -197,16 +219,8 @@ var diag_add_data_op_var = function(data_var) {
         data_diag.attr({text: {text: data_var.text}});
         data_diag.position(200, 200);
         data_diag.resize(100, 30);
-        // var step_diag = graph.getCell(data_var.source);
-        var link = new joint.dia.Link({
-            source: {id: data_var.source},
-            target: {id: data_diag.id}
-        });
-        link.attr({
-            '.connection': {stroke: 'black'},
-            '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
-        });
-        graph.addCells([data_diag, link]);
+        data_diag.addTo(graph);
+        diag_add_link(from=data_var.source, to=data_diag.id);
         console.info("added data variable (artifact) diagram", data_diag.id);
     }
     // saved element, has diagram instance on graph
@@ -222,27 +236,11 @@ var diag_add_data_op_var = function(data_var) {
                 // redraw the link, delete the old link
                 console.debug("link changed", links[0].attributes.source.id, data_var.source);
                 links[0].remove();
-                var link = new joint.dia.Link({
-                    source: {id: data_var.source},
-                    target: {id: data_diag.id}
-                });
-                link.attr({
-                    '.connection': {stroke: 'black'},
-                    '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
-                });
-                link.addTo(graph);
+                diag_add_link(from=data_var.source, to=data_diag.id);
             }
         // links are not present, so generate them
         } else {
-            var link = new joint.dia.Link({
-                source: {id: data_var.source},
-                target: {id: data_diag.id}
-            });
-            link.attr({
-                '.connection': {stroke: 'black'},
-                '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
-            });
-            link.addTo(graph);
+            diag_add_link(from=data_var.source, to=data_diag.id);
         }
         console.info("modified artifact diagram", data_diag.id);
     }
@@ -288,15 +286,7 @@ var diag_add_step = function(step) {
         step_diag.addTo(graph);
         // if the element is related, draw a link for it
         if (step.uses) {
-            var link = new joint.dia.Link({
-                source: {id: step.uses},
-                target: {id: step_diag.id}
-            });
-            link.attr({
-                '.connection': {stroke: 'black'},
-                '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
-            });
-            link.addTo(graph);
+            diag_add_link(from=step.uses, to=step_diag.id);
         }
         console.info("added step diagram", step_diag.id);
     }
@@ -314,15 +304,7 @@ var diag_add_step = function(step) {
                 // redraw the link, delete the old link
                 console.debug("link changed", links[0].attributes.source.id, step.uses);
                 links[0].remove();
-                var link = new joint.dia.Link({
-                    source: {id: step.uses},
-                    target: {id: step_diag.id}
-                });
-                link.attr({
-                    '.connection': {stroke: 'black'},
-                    '.marker-target': {fill: 'black', d:'M 10 0 L 0 5 L 10 10 z'}
-                });
-                link.addTo(graph);
+                diag_add_link(from=step.uses, to=step_diag.id);
             }
         }
         console.info("modified step diagram", step_diag.id);
