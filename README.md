@@ -26,7 +26,7 @@ The center panel is the diagram, and is created using the jointjs library.
  - moving the elements is permitted in the diagram
  - changin links in the form will reflect the changes in the diagram
  - TODO: detect circular links and create separate links (separate paths)
- - TODO: the diagram can be exported
+ - the diagram can be exported and imported
 
 ### tree
 The right panel is the tree, which shows a list of elements 
@@ -35,7 +35,7 @@ ordered by their types.
  - trees exist for variables, parameters, and steps
  - when an element is successfully added to the stack, 
  it is also added to the tree under its tree type.
- - TODO: clicking on the element highlights the element diagram
+ - clicking on the element highlights the element diagram
  - clicking the element opens it in the infobox panel for editing
 
 

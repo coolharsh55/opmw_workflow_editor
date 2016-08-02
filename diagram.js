@@ -148,7 +148,6 @@ var diagram_test = function() {
 }
 // diagram_test();
 
-// TODO: create separate function for adding links
 
 /**
  * add link between two objects
@@ -231,7 +230,6 @@ var diag_add_data_op_var = function(data_var) {
         // if links are present
         if (links.length != 0) {
             // check if the link has changed
-            // TODO: multiple links will be present to check from
             if (links[0].attributes.source.id != data_var.uses) {
                 // redraw the link, delete the old link
                 console.debug("link changed", links[0].attributes.source.id, data_var.source);
@@ -285,9 +283,9 @@ var diag_add_step = function(step) {
         step_diag.resize(100, 30);
         step_diag.addTo(graph);
         // if the element is related, draw a link for it
-        if (step.uses) {
-            diag_add_link(from=step.uses, to=step_diag.id);
-        }
+        step.uses.forEach(function(linked_diag, index) {
+            diag_add_link(from=linked_diag, to=step_diag.id);
+        });
         console.info("added step diagram", step_diag.id);
     }
     // previous saved element, has a diagram instance on graph
@@ -295,20 +293,15 @@ var diag_add_step = function(step) {
         var step_diag = graph.getCell(step.diagram);
         step_diag.attr({text: {text: step.text}});
         var links = graph.getConnectedLinks(step_diag, {inbound: true});
-        if (links.length == 0) {
-            // no links associated
-        } else {
-            // check if the link has changed
-            // TODO: multiple links will be present to check from
-            if (links[0].attributes.source.id != step.uses) {
-                // redraw the link, delete the old link
-                console.debug("link changed", links[0].attributes.source.id, step.uses);
-                links[0].remove();
-                diag_add_link(from=step.uses, to=step_diag.id);
-            }
-        }
+        links.forEach(function(link, index) {
+            link.remove();
+        })
+        step.uses.forEach(function(linked_diag, index) {
+            diag_add_link(from=linked_diag, to=step_diag.id);
+        });
         console.info("modified step diagram", step_diag.id);
     }
     return step_diag.id;
 };
 
+console.info("loaded diagram.js");

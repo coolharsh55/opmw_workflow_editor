@@ -35,9 +35,46 @@ var serialize_export = function() {
                 return;
             }
             var property = object[key];
+            // if property is a dictionary
             if (property && property.constructor == Object) {
-                console.debug("property is a link", key, property);
+                console.debug("property is a linked object", key, property);
                 object_json[key] = property["rdfs:label"];
+            // if property is a list of items
+            } else if (property && property.constructor == Array) {
+                console.debug("property is a list of linked objects", key, property);
+                object_json[key] = [];
+                // if property has some range (over elements)
+                if (object.schema.properties[key].range){
+                    // if the range is not a list, and it is not an OPMW element
+                    // add the item as json
+                    if (object.schema.properties[key].range.constructor !== Array &&
+                            !(object.schema.properties[key].range in OPMW.elements)) {
+                        property.forEach(function(item, index) {
+                            object_json[key].push(item);
+                        });
+                    }
+                    // if the range is not a list, but it is an OPMW element
+                    // add the item's label as json
+                    else  if(object.schema.properties[key].range.constructor !== Array &&
+                            object.schema.properties[key].range in OPMW.elements) {
+                        property.forEach(function(item, index) {
+                            object_json[key].push(item["rdfs:label"]);
+                        });
+                    }
+                    // if the range is a list
+                    else if(object.schema.properties[key].range.constructor == Array) {
+                        // NOTE: figure out a way to mix OPMW elements and other types if required
+                        property.forEach(function(item, index) {
+                            object_json[key].push(item["rdfs:label"]);
+                        });
+                    }
+                }
+                // item has a null range, which means that it is a list of literal values
+                else {
+                    property.forEach(function(item, index) {
+                        object_json[key].push(item);
+                    });
+                }
             } else {
                 console.debug("property is a literal", key, property);
                 object_json[key] = object[key];
@@ -60,7 +97,6 @@ var serialize_export = function() {
         });
         // attach diagram node (through id)
         object_json.diagram = object.diagram;
-        console.debug(object_label, object_json);
         export_json.objects[object_label] = object_json;
     });
     export_json.diagram = graph.toJSON();
@@ -112,7 +148,7 @@ var serialize_import = function(file_contents) {
         experiment_data[object.type].push(object);
         // add links
         Object.keys(object.links).forEach(function(link_type, index) {
-            objects_link_type = []
+            objects_link_type = [];
             object.links[link_type].forEach(function(object_label, index) {
                 objects_link_type.push(experiment_data_labels[object_label]);
             });
@@ -121,16 +157,31 @@ var serialize_import = function(file_contents) {
         // add linked properties
         var nonlinked_properties = ["id", "schema", "links", "diagram"];
         Object.keys(object).forEach(function(property, index) {
+            // if this is non-linked property, skip it
             if (nonlinked_properties.indexOf(property) > -1) {
                 return;
             }
             if (
-                property in object.schema.properties &&
-                object.schema.properties[property].range in OPMW.elements &&
-                object[property] != null
-            ) {
-                object[property] = experiment_data_labels[object[property]];
-            }
+                property in object.schema.properties &&  // this is an OPMW defined property
+                object[property] != null &&  // it has some value
+                object.schema.properties[property].range != null) {  // it has some range to link over
+
+                // the range is an OPMW element (not other linked types)
+                if (object.schema.properties[property].range in OPMW.elements ||
+                    object.schema.properties[property].range.constructor == Array) {
+                    // TODO: check other ranges in array are in OPMW.elements
+                    // could be authors as an array
+                    if (object.schema.properties[property].dimension == "multi" ||
+                        object.schema.properties[property].dimension > 2) {
+                        linked_property = [];
+                        object[property].forEach(function(item, index) {
+                            linked_property.push(experiment_data_labels[item]);
+                        });
+                        object[property] = linked_property;
+                    } else {
+                        object[property] = experiment_data_labels[object[property]];
+                    }
+                }            }
         });
         // add object to tree
         if (object.type == "opmw:WorkflowTemplate") {
@@ -150,11 +201,14 @@ var serialize_import = function(file_contents) {
         OPMW.elements["opmw:WorkflowTemplate"],
         experiment_data["opmw:WorkflowTemplate"][0]);
 
-    console.log("experiment data", experiment_data);
-    console.log("experiment data labels", experiment_data_labels);
+    console.info("imported data from file");
+    console.info("experiment data", experiment_data);
+    console.info("experiment data labels", experiment_data_labels);
 
     // restore diagram status
     graph.fromJSON(diagram);
 
     return true;
 }
+
+console.info("loaded serialize.js");

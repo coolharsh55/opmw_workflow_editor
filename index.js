@@ -32,6 +32,7 @@ $('document').ready(function() {
      */
     $.getJSON("opmw.json", function(json) {
         OPMW = json;
+        console.info("loaded opmw.json");
         // for debug purposes, ALWAYS log the OPMW to console
         console.debug("opmw.json", OPMW);
         // TODO: set up types for experiment data
@@ -70,4 +71,4 @@ function readFile (evt) {
    reader.readAsText(file)
 }
 
-console.debug('loaded index.js');
+console.info('loaded index.js');

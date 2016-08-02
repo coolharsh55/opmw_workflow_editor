@@ -1,40 +1,31 @@
 # dev.md
 
-// Saturday 07/30/16 at 01:26PM - 16 files in 0.28 secs
+// Tuesday 08/02/16 at 02:03PM - 16 files in 0.08 secs
 
-## TODO (19)
-1. workflow_editor/diagram.js:151    create separate function for adding links
-2. workflow_editor/diagram.js:220    multiple links will be present to check from
-3. workflow_editor/diagram.js:312    multiple links will be present to check from
-4. workflow_editor/form.js:131       return array of linked diagrams
-5. workflow_editor/form.js:193       add form data to form element
-6. workflow_editor/form.js:205       add values to array
-7. workflow_editor/form.js:233       property and relation resolution
-8. workflow_editor/form.js:284       restore field value
-9. workflow_editor/form.js:329       add multi-select field type to form
-10. workflow_editor/form.js:331      restore field value
-11. workflow_editor/form.js:335      restore textarea value
-12. workflow_editor/form.js:358      check, validate, save previous form data before making new one
-13. workflow_editor/index.js:37      set up types for experiment data
-14. workflow_editor/README.md:28     detect circular links and create separate links (separate paths)
-15. workflow_editor/README.md:29     the diagram can be exported
-16. workflow_editor/README.md:38     clicking on the element highlights the element diagram
-17. workflow_editor/serialize.js:92  check integrity of imported json
-18. workflow_editor/serialize.js:93  check compatibility of imported json
-19. workflow_editor/serialize.js:94  check imported json adheres to schema
+## TODO (11)
+1. workflow_editor/form.js:29         remove reference to dialog element in form
+2. workflow_editor/form.js:67         add node of element to tree like node-(id)
+3. workflow_editor/form.js:69         update label in node when updating form
+4. workflow_editor/form.js:298        add button to remove input node from list in form
+5. workflow_editor/form.js:477        check, validate, save previous form data before making new one
+6. workflow_editor/index.js:38        set up types for experiment data
+7. workflow_editor/README.md:28       detect circular links and create separate links (separate paths)
+8. workflow_editor/serialize.js:128   check integrity of imported json
+9. workflow_editor/serialize.js:129   check compatibility of imported json
+10. workflow_editor/serialize.js:130  check imported json adheres to schema
+11. workflow_editor/serialize.js:172  check other ranges in array are in OPMW.elements
+
+
+## work notes
 
 
 ## things to do
  
- - multi-select
- - restore textarea contents upon element reload
- - multiple text inputs for input dimension="multi"
- - check: form object does not remain the same after changing forms
  - update label for node
- - remove relations for step (e.g.) where value is empty
  - change title of infobox to whatever type of element is being currently edited
  - BUG: fix name change being reflected in tree
  - FIXME: duplicate names are still being allowed
+ - highlight elements (labels) with color
 
 ### attaching element to diagram
  - detect cycles in graph (should this be allowed)

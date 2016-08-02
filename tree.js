@@ -10,10 +10,6 @@
  */
 
 
-$('document').ready(function() {
-
-});
-
 // on click event handler for + button in Data variables
 $('#add-data-var').click(function() {
     form_make(
@@ -56,7 +52,6 @@ $('#tree-experiment').click(function() {
 
 // object instances
 $('body').on('click', '.object-instance', function(){
-    console.log('object-instance click', $(this).text());
     var object = experiment_data_labels[$(this).text()];
     form_make(
         object.type,
@@ -65,4 +60,4 @@ $('body').on('click', '.object-instance', function(){
     );
 });
 
-console.debug('loaded tree.js');
+console.info('loaded tree.js');
