@@ -49,17 +49,53 @@ $('document').ready(function() {
     });
 });
 
-$('#form-save').click(function() {
+$('#btn-form-save').click(function() {
     form_save();
 });
-$('#form-cancel').click(function() {
+$('#btn-form-cancel').click(function() {
     form_cancel();
 });
+
+$('#btn-template').click(function() {
+    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
+        form_make(
+            "opmw:WorkflowTemplate",
+            OPMW.elements["opmw:WorkflowTemplate"],
+            experiment_data["opmw:WorkflowTemplate"][0]);
+    } else {
+        // do nothing
+    }
+});
+// on click event handler for Data variable
+$('#btn-add-data-var').click(function() {
+    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
+        form_make(
+            "opmw:DataVariable",
+            OPMW.elements["opmw:DataVariable"], null);
+    }
+});
+// on click event handler Parameter variables
+$('#btn-add-param-var').click(function() {
+    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
+        form_make(
+            "opmw:ParameterVariable",
+            OPMW.elements["opmw:ParameterVariable"], null);
+    }
+});
+// on click event handler for + button in Step
+$('#btn-add-step').click(function() {
+    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
+        form_make(
+            "opmw:WorkflowTemplateProcess",
+            OPMW.elements["opmw:WorkflowTemplateProcess"], null);
+    }
+})
+
 
 // input file event
 // snippet copied from
 // https://stackoverflow.com/questions/4950567/reading-client-side-text-file-using-javascript
-document.getElementById('input-file').addEventListener('change', readFile, false);
+document.getElementById('btn-import').addEventListener('change', readFile, false);
 function readFile (evt) {
    var files = evt.target.files;
    var file = files[0];

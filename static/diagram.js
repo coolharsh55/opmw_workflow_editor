@@ -25,7 +25,7 @@ var paper = new joint.dia.Paper({
     // id of diagram is 'diagram'
     el: $('#diagram'),
     // arbitrary size
-    width: 720,
+    width: 500,
     height: 700,
     model: graph,
     gridSize: 1
@@ -112,18 +112,18 @@ var diagram_test = function() {
     // data var
     var d1 = joint_shape_data_var.clone();
     d1.attr({text: {text: 'data var 1'}});
-    d1.position(100, 30);
-    d1.resize(100, 30);
+    d1.position(50, 30);
+    d1.resize(50, 30);
     // parameter var
     var p1 = joint_shape_param_var.clone();
     p1.attr({text: {text: 'param var 1'}});
-    p1.position(250, 30);
-    p1.resize(100, 30);
+    p1.position(75, 30);
+    p1.resize(50, 30);
     // step
     var s1 = joint_shape_step.clone();
     s1.attr({text: {text: "step 1"}});
-    s1.position(200, 100);
-    s1.resize(100, 30);
+    s1.position(100, 30);
+    s1.resize(50, 30);
     // link data and step
     var link_d1_s1 = new joint.dia.Link({
         source: {id:d1.id},

@@ -7,16 +7,6 @@
  */
 
 /* ensure form elements are on separate lines */
-input {
-    /*display: block;*/
-}
-textarea {
-    display: block;
-}
-label {
-    display: block;
-}
-
 /* add some styling to form labels*/
 .form-label {
     margin: 2px;

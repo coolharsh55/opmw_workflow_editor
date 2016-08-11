@@ -13,7 +13,7 @@
  * export experiment data
  * @return {boolean} operation status
  */
-var serialize_export = function() {
+var serialize_data = function() {
     var export_json = {
         workflow_template:
             experiment_data['opmw:WorkflowTemplate'][0]["rdfs:label"],
@@ -100,14 +100,28 @@ var serialize_export = function() {
         export_json.objects[object_label] = object_json;
     });
     export_json.diagram = graph.toJSON();
+    return export_json;
+}
+
+
+var serialize_import = function() {
+    var export_json = serialize_data();
     // snippet copied from
     // http://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
     var dataStr = "data:text/json;charset=utf-8," +
         encodeURIComponent(JSON.stringify(export_json));
     $('#export-data').attr("href", dataStr);
     // ~snippet~
-    console.info("exported data", export_json);
-    return true;
+    console.info("exported data", {data: export_json});
+}
+
+
+var serialize_publish = function() {
+    var export_json = serialize_data();
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/publish/workflowtemplate", true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send(JSON.stringify(export_json));
 }
 
 
@@ -133,10 +147,6 @@ var serialize_import = function(file_contents) {
     Object.keys(experiment_data).forEach(function(key, index) {
         experiment_data[key] = [];
     });
-    // remove tree nodes
-    $('#steps ul').empty();
-    $('#variables_data ul').empty();
-    $('#variables_param ul').empty();
     // insert imported objects
     Object.keys(experiment_data_labels).forEach(function(key, index) {
         var object = experiment_data_labels[key];
@@ -185,13 +195,7 @@ var serialize_import = function(file_contents) {
         });
         // add object to tree
         if (object.type == "opmw:WorkflowTemplate") {
-            $('#tree-experiment').text(object["rdfs:label"]);
-        } else if (object.type == "opmw:WorkflowTemplateProcess") {
-            $('#steps ul').append('<li class="object-instance">' + object["rdfs:label"]);
-        } else if (object.type == "opmw:DataVariable") {
-            $('#variables_data ul').append('<li class="object-instance">' + object["rdfs:label"]);
-        } else if (object.type == "opmw:ParameterVariable") {
-            $('#variables_param ul').append('<li class="object-instance">' + object["rdfs:label"]);
+            $('#btn-template').text(form_data.object["rdfs:label"]);
         }
     });
 
