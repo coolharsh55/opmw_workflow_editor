@@ -1,8 +1,8 @@
 # dev.md
 
-> 09/08/2016 15:44
+> 18/08/2016 16:08
 
-## things to do - a checklist for working ahead
+## editor
 
 ### form things
  - type checking based on element type
@@ -21,4 +21,17 @@
  - auto postition nodes
 
 ### serialize
+
+## publish
+ - check if label names have been previously defined
+ - generate ttl files for serving
+ - show experiment is published, also in exported files
+
+### rdflib
+ - refactor libOPMW into better modules and names
+ - the 'label' in graphs should instead point to URI for object
+     + http://www.opmw.org/ontology/isParameterOfTemplate   param1  http://lvh.me/directed-study/harsh/exp
+ - refactor into methods for producing rdf mapping of experiment
+ - api methods to check if label is taken
+
 

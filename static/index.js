@@ -30,7 +30,7 @@ $('document').ready(function() {
         add element types to experiment data
         make form for experiment template
      */
-    $.getJSON("opmw.json", function(json) {
+    $.getJSON("/opmw.json", function(json) {
         OPMW = json;
         console.info("loaded opmw.json");
         // for debug purposes, ALWAYS log the OPMW to console
@@ -47,6 +47,7 @@ $('document').ready(function() {
             OPMW.begin,         // element type
             OPMW.elements[OPMW.begin]);  // element schema);
     });
+
 });
 
 $('#btn-form-save').click(function() {

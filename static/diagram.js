@@ -25,8 +25,8 @@ var paper = new joint.dia.Paper({
     // id of diagram is 'diagram'
     el: $('#diagram'),
     // arbitrary size
-    width: 500,
-    height: 700,
+    width: 700,
+    height: 900,
     model: graph,
     gridSize: 1
 });

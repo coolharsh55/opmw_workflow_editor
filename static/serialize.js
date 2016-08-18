@@ -18,7 +18,6 @@ var serialize_data = function() {
         workflow_template:
             experiment_data['opmw:WorkflowTemplate'][0]["rdfs:label"],
         objects: {},
-        diagram: {}
     };
     // unwanted properties
     var unwanted_properties = ["id", "schema", "links"];
@@ -99,13 +98,14 @@ var serialize_data = function() {
         object_json.diagram = object.diagram;
         export_json.objects[object_label] = object_json;
     });
-    export_json.diagram = graph.toJSON();
+
     return export_json;
 }
 
 
-var serialize_import = function() {
+var serialize_export = function() {
     var export_json = serialize_data();
+    export_json.diagram = graph.toJSON();
     // snippet copied from
     // http://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
     var dataStr = "data:text/json;charset=utf-8," +
@@ -118,8 +118,9 @@ var serialize_import = function() {
 
 var serialize_publish = function() {
     var export_json = serialize_data();
+    console.log("published data", export_json);
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/publish/workflowtemplate", true);
+    xhttp.open("POST", "/publish/workflowtemplate/", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send(JSON.stringify(export_json));
 }
@@ -193,10 +194,6 @@ var serialize_import = function(file_contents) {
                     }
                 }            }
         });
-        // add object to tree
-        if (object.type == "opmw:WorkflowTemplate") {
-            $('#btn-template').text(form_data.object["rdfs:label"]);
-        }
     });
 
     // open workflow template in form

@@ -638,7 +638,6 @@ var form_make = function(type, schema, object=null) {
 
     // create elements for each relation
     Object.keys(object.links).forEach(function(key, index) {
-        console.log("relation", key);
         var div = $('<div>', {class: "ui vertical segment"});
         div.append($('<label>', {
             class: "ui label",
@@ -649,7 +648,6 @@ var form_make = function(type, schema, object=null) {
             class: "ui bulleted list"
         });
         div.append(list);
-        console.log("related", object.links[key]);
         object.links[key].forEach(function(ele, index) {
             list.append($('<div>', {
                 class: "item",

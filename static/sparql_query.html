@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+    <!--
+        sparql_query.html
+        run sparql query on RDF graph
+
+        sends query to server and renders response in a table
+
+        @author: Harshvardhan Pandit
+        @email : me@harshp.com
+    -->
+    <head>
+        <!-- meta -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>OPMW workflow editor</title>
+        <meta name="description" content="a workflow editor based on the OPMW ontology">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- css -->
+        <!-- jQuery -->
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+    </head>
+
+    <body>
+        <div class="ui container">
+            <div class="ui raised container segment">
+                <h1>Run SPARQL query</h1>
+                <div class="ui form">
+                    <div class="required field">
+                        <textarea id='query-text' style="font-family: monospace;"></textarea>
+                    </div>
+                    <button id='form-submit' class="ui button" type="submit">run</button>
+                </div>
+            </div>
+            <div class='ui container'>
+                <table id='results' class="ui celled striped sortable table">
+                    <thead id='results-header'>
+                    </thead>
+                    <tbody id='results-body'>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- javascript -->
+        <!-- jQuery & jQuery UI -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <!-- semantic-ui -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+        <!-- sparql query -->
+        <script src="/sparql_query.js"></script>
+    </body>
+</html>

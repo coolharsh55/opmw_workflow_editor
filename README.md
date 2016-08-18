@@ -1,60 +1,66 @@
-# dev notes
------------
+# Workflow Editor
 
-## gui
+Harshvardhan Pandit
+
 ------
-The gui is a three panel workspace with panels for entering information (form),
-displaying diagram, and selecting nodes.
 
-### infobox
-This is the panel on the left, and contains a form for entering information for
-the currently active element.
- - the header is the element type
- - for each property, an appropriate input type is added to the form
- - text for string, select for properties with domains, 
- textarea for documentation, etc.
- - if the property is required, the input is attributed as required
- - during validation, the input is highlighted if not filled
- along with the relation.
+The **workflow editor** is used to document experimental workflows using _Semantic Web_ and _Linked Open Data_ standards. It uses the [**OPMW**](http://www.opmw.org) to describe experiments. The workflow editor consists of a browser-based GUI and a server for hosting the experiment graph. Experiments can be published using the server as RDF graphs.
 
-### diagram
-The center panel is the diagram, and is created using the jointjs library.
- - There are distinct diagram for each element type.
- - Data variable, Parameter Variable, Step each have their distinct diagram
- - Once an element is saved, it is added to the diagram along with their
- links (with arrows)
- - moving the elements is permitted in the diagram
- - changin links in the form will reflect the changes in the diagram
- - TODO: detect circular links and create separate links (separate paths)
- - the diagram can be exported and imported
+## GUI
 
-### tree
-The right panel is the tree, which shows a list of elements 
-ordered by their types.
- - the top most element is the experiment, this is the label of the experiment
- - trees exist for variables, parameters, and steps
- - when an element is successfully added to the stack, 
- it is also added to the tree under its tree type.
- - clicking on the element highlights the element diagram
- - clicking the element opens it in the infobox panel for editing
+The GUI consists of a browser based page which contains two sections for entering the information (form) and for displaying the diagram. Users enter information in the form, and the corresponding experiment graph is generated in memory, and displayed as a digram.
 
+The first item that needs to be entered is the Experiment information (workflow template), following which parameters, data variables, and steps can be added to the experiment. The buttons at the top are used to add items. The template button is used to access the experiment template once it is saved. The buttons at the right allow the experiment to be published, exported, and imported.
 
-## data types
- - WorkflowTemplate (experiment)
- - ParameterVariable (parameter)
- - DataVariable ([data] variable)
- - WorkflowTemplateProcess (step)
+Each item is saved by clicking the save button, which persists the form contents in a graph in memory, and adds a corresponding diagram. Any relations with other items are generated as links. The cancel button re-loads the item from memory and discards any changes made in the form. Linked items are displayed at the bottom as 'Relations'.
 
-## files
- - index.html index.css index.js
- These are the core files that describe the operations of the workflow gui
- - form.css form.js
- These files are for the infobox
- - diagram.css diagram.js
- These files ar for the diagram
- - tree.css tree.js
- These files are the element tree
- - opmw.json
- Contains the opmw ontology adapted for use in the workflow editor
- - grid.css.map toast.css
- CSS framework for panels
+### Import / Export
+
+The import / export format is JSON and the graph is flattened to prevent recursive links to items.
+
+### Publish
+
+The experiment is published by sending the data to the server, which adds the experiment to the interal graph, which is serialized on disk. 
+
+### SPARQL
+
+Queries can be run on the graph using SPARQL. The page for querying and displaying results is available at `/sparql/query`. 
+
+## Experiment items (OPMW)
+
+-   WorkflowTemplate (experiment)
+-   ParameterVariable (parameter)
+-   DataVariable ([data] variable)
+-   WorkflowTemplateProcess (step)
+
+## Source
+
+### Browser Editor
+
+-   `index.html index.css index.js`  are the core files that describe the operations of the workflow gui
+-   `form.css form.js`  files are for the infobox
+-   `diagram.css diagram.js`  files ar for the diagram
+-   `serialize.js` used for publish, import, and export 
+-   `opmw.json`  the opmw ontology adapted for use in the workflow editor
+
+### Server
+
+-   `main.py` flask app
+-   `libOPMW` python module for RDF graph
+
+## Requirements
+
+### Browser Editor
+
+-   jQuery, jQuery-UI
+-   Semantic-UI
+-   Joint.js
+    -   lodash
+    -   backbone
+
+### Server
+
+-   Flask (python microframework)
+-   RDFLib
+-   Arrow (datetime)
+-   SQLAlchemy (RDF SQLite persistence)
