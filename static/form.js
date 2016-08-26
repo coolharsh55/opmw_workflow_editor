@@ -563,14 +563,26 @@ var form_add_property = function(field_name, field) {
             }
         }
     } else if (field.input == "multi-select") {
-        label.append($("<button>", {
-            text: select,
-            click: dialog_multi_select.dialog("open"),
-        }));
+        // label.append($("<button>", {
+        //     text: select,
+        //     click: dialog_multi_select.dialog("open"),
+        // }));
+        console.log("fix this multi-select");
     // input is a text area
     } else {
         var textarea = $("<textarea>", {id: field_name.replace(':', '-')});
         textarea.val(form_data.object[field_name]);
+        var div_base = $('<div>', {class: "field"});
+        if (field.required) {
+            div_base.addClass("required");
+        }
+        div_base.append($('<label>', {
+            class: "ui label",
+            text: field.label
+        }));
+        div_base.append(div);
+        div_base.append(textarea);
+        $('#form-properties').append(div_base);
         // label.append(textarea);
 
     }
@@ -585,7 +597,10 @@ var form_add_property = function(field_name, field) {
  * @param  {dict} ele element dictionary
  * @return {nothing}
  */
-var form_make = function(type, schema, object=null) {
+var form_make = function(type, schema, object) {
+    if (object == undefined) {
+        object = null;
+    }
     console.debug("creating form for", type, schema, object);
     $('#element-type').text(schema.label);
     // TODO: check, validate, save previous form data before making new one
