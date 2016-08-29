@@ -1,0 +1,49 @@
+/*
+    index.css
+    globals and document styling
+
+    @author: Harshvardhan Pandit
+    @email : me@harshp.com
+ */
+
+/* add some spacing to the body */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+#menu {
+    padding-top: 20px;
+}
+/* border the grids (panels) */
+.bordered {
+    padding: 1em;
+    border: 1px solid black;
+}
+
+.box-header {
+    font-size: 1.5em;
+    background-color: lightgray;
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+#div-add-element {
+    position: absolute;
+    left: 25;
+    bottom: 90;
+    height: 90px;
+    width: 100%;
+}
+
+#add-element {
+    width: 20px;
+    height: 20px;
+    font-size: 1em;
+    color: red;
+    background-color: yellow;
+    border-radius: 50%;
+}

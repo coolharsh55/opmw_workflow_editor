@@ -1,0 +1,32 @@
+/*
+    tree.js
+    styling for right panel / tree
+
+    @author: Harshvardhan Pandit
+    @email : me@harshp.com
+ */
+
+/* style list as a tree */
+#div-tree > .list ul {
+    display: none;
+}
+#div-tree > ul {
+    list-style: none;
+    padding:0;
+    margin:0;
+}
+#div-tree > li {
+    padding-left: 1em;
+    text-indent: -.7em;
+}
+#div-tree > li:before {
+    content: "-";
+    color: blue;
+}
+
+/* float the "+" add buttons to the right */
+.snap-right {
+    float: right;
+    margin-right: 2px;
+    color: blue;
+}

@@ -1,0 +1,23 @@
+/*
+    form.js
+    stylign for left panel / infobox / form
+
+    @author: Harshvardhan Pandit
+    @email : me@harshp.com
+ */
+
+/* ensure form elements are on separate lines */
+/* add some styling to form labels*/
+.form-label {
+    margin: 2px;
+}
+
+/* highlight the required fields with bold labels */
+.required {
+    text-style: bold;
+}
+
+/* highlights required but empty fields with a red border */
+.red-border {
+    border: 2px solid red;
+}
