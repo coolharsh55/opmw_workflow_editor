@@ -94,8 +94,18 @@ def _graph_with_namespace():
 master_graph = _graph_with_namespace()
 
 
-def _serialize_turtle(graph, filename):
-    filename = './this_project_' + filename + '.ttl'
+def serialize_entire_graph(filename):
+    graph = Graph('SQLAlchemy', identifier=ident)
+    graph.open(uri, create=True)
+    filename = './export/this_project_' + filename + '.ttl'
+    with open(filename, 'wb') as f:
+        f.write(graph.serialize(format='turtle'))
+        print('created', filename)
+    graph.close()
+
+
+def serialize_graph(graph, filename):
+    filename = './export/' + filename + '.ttl'
     with open(filename, 'wb') as f:
         f.write(graph.serialize(format='turtle'))
         print('created', filename)
@@ -111,7 +121,11 @@ def graph_workflow_template(template):
     graph.add((n_template, RDFS.label, Literal(template['rdfs:label'])))
     # contributors
     for contributor in template['dcterms:contributor']:
-        graph.add((n_template, dcterms.contributor, URIRef(contributor)))
+        graph.add((
+            n_template, dcterms.contributor,
+            URIRef(
+                this_project['people/{}'.format(
+                    contributor.replace(' ', '-'))])))
     # documentation
     graph.add((
         n_template, opmw.hasDocumentation,
@@ -119,7 +133,7 @@ def graph_workflow_template(template):
     # diagram
     graph.add((
         n_template, opmw.hasTemplateDiagram,
-        URIRef(template['opmw:hasTemplateDiagram'])))
+        URIRef(this_project['images/{}'.format(template['image'])])))
     # created in
     graph.add((
         n_template, opmw.createdInWorkflowSystem,
@@ -133,7 +147,7 @@ def graph_workflow_template(template):
         uri = opmw[link_type.split(':')[1]]
         for link_item in link_items:
             graph.add((
-                URIRef(link_item),
+                URIRef(this_project[link_item]),
                 uri, n_template))
 
     return graph
@@ -257,3 +271,22 @@ def sparql_query(query):
     finally:
         graph.close()
     return results, None
+
+
+def list_workflows():
+    graph = Graph('SQLAlchemy', identifier=ident)
+    graph.open(uri, create=True)
+    try:
+        query = '''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?label
+            WHERE {
+              ?s rdfs:label ?label .
+              ?s a  <http://www.opmw.org/ontology/WorkflowTemplate>
+            }'''
+        results = list(graph.query(query))
+    except Exception:
+        return None
+    finally:
+        graph.close()
+    return results

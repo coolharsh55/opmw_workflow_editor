@@ -115,14 +115,35 @@ var serialize_export = function() {
     console.info("exported data", {data: export_json});
 }
 
+function encode_as_img_and_link(){
+    var svg = document.getElementById('diagram').firstChild.outerHTML;
+    $('<canvas/>', { id: 'canvas', width: 700, height: 900}).appendTo('body');
+    canvg('canvas', svg);
+    var canvas = document.getElementById('canvas');
+    // http://stackoverflow.com/questions/19032406/convert-html5-canvas-into-file-to-be-uploaded
+    var blobBin = atob(canvas.toDataURL().split(',')[1]);
+    canvas.parentNode.removeChild(canvas);
+    var array = [];
+    for(var i = 0; i < blobBin.length; i++) {
+        array.push(blobBin.charCodeAt(i));
+    }
+    var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
+    return file;
+}
+
 
 var serialize_publish = function() {
     var export_json = serialize_data();
-    console.log("published data", export_json);
+    var file = encode_as_img_and_link();
+
+    var formdata = new FormData();
+    formdata.append("image", file);
+    formdata.append("data", JSON.stringify(export_json));
+
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/publish/workflowtemplate/", true);
-    xhttp.setRequestHeader("Content-type", "application/json");
-    xhttp.send(JSON.stringify(export_json));
+    // xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send(formdata);
 }
 
 
@@ -201,6 +222,7 @@ var serialize_import = function(file_contents) {
         "opmw:WorkflowTemplate",
         OPMW.elements["opmw:WorkflowTemplate"],
         experiment_data["opmw:WorkflowTemplate"][0]);
+    form_save();
 
     console.info("imported data from file");
     console.info("experiment data", experiment_data);

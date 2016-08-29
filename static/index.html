@@ -1,111 +1,69 @@
 <!DOCTYPE html>
-    <!--
-        index.html
-        workflow editor based on OPMW ontology
+<!--
+    index.html
 
-        The viewport is divided into three parts - infobox, diagram, tree.
-        Infobox shows a form for editing the current active element.
-        Diagram shows a diagrammatic representation of the experiment workflow.
-        Tree shows a node-tree structure for elements.
-        See more in file://README.md
+    @author: Harshvardhan Pandit
+    @email : me@harshp.com
+-->
+<head>
+<!-- meta -->
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Workflow Process</title>
+<meta name="description" content="a workflow editor based on the OPMW ontology">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- css -->
+<!-- jQuery -->
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<!-- semantic-ui -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+</head>
 
-        @author: Harshvardhan Pandit
-        @email : me@harshp.com
-    -->
-    <head>
-        <!-- meta -->
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>OPMW workflow editor</title>
-        <meta name="description" content="a workflow editor based on the OPMW ontology">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- css -->
-        <!-- jQuery -->
-        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-        <!-- semantic-ui -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
-        <!-- Joint.js for diagramming -->
-        <link rel="stylesheet" type="text/css" href="http://www.jointjs.com/cms/downloads/joint.min.css">
-        <!-- local files -->
-        <!-- index.css for global styling -->
-        <link rel="stylesheet" type="text/css" href="index.css">
-        <!-- left panel - infobox/form -->
-        <link rel="stylesheet" type="text/css" href="form.css">
-        <!-- middle panel - diagram -->
-        <link rel="stylesheet" type="text/css" href="diagram.css">
-    </head>
+<body>
+<div class="ui segment container">
+    <h1 class="ui header">Choose workflow task</h1>
+    <div class="ui top attached tabular menu">
+        <a class="item active" data-tab="first">New Workflow</a>
+        <a class="item" data-tab="second">Execute Worklfow</a>
+        <a class="item" data-tab="third">Fork Workflow</a>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="first">
+        <a href="/new_workflow/"><button class="ui button">create new workflow</button></a>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="second">
+        <div id='workflow-list' class="ui bulleted list"></div>
+    </div>
+    <div class="ui bottom attached tab segment active" data-tab="third">
 
-    <body>
-        <div class="ui top fixed menu">
-            <a id='btn-template' class='ui basic  label item'><b>template</b></a>
-            <a id='btn-add-data-var' class='ui basic label item'>add data variable</a>
-            <a id='btn-add-param-var' class='ui basic label item'>add parameter variable</a>
-            <a id='btn-add-step' class='ui basic label item'>add step</a>
-            <div class="ui right menu">
-            <a id='btn-publish' class='ui basic label item' onclick="serialize_publish();">publish</a>
-            <a id='import-data' class='ui basic label item' onclick="document.getElementById('btn-import').click();">import data</a>
-            <a id='export-data' class='ui basic label item' href="" download="data.json" onclick="serialize_export();">export data</a>
-            <input id='btn-import' type="file" style="display: none;" id="input-file" name="file" enctype="multipart/form-data"/>
-            </div>
-        </div>
+    </div>
+</div>
 
-        <div class="ui grid">
+<!-- javascript -->
+<!-- jQuery & jQuery UI -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<!-- semantic-ui -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
 
-            <!-- infobox -->
-            <div id='div-infobox' class="ten wide column">
+<script type="text/javascript">
+// create tabs
+$('.menu .item').tab();
 
-                <h2 id="element-type" class="ui top attached header">workflow template</h2>
-                <div class="ui attached segment">
-
-                    <form class="ui large form" id='infobox'>
-                        <h3 id='form-experiment-label'>Experiment Template</h3>
-                        <div class="ui buttons">
-                          <button id="btn-form-cancel" type="button" class="ui button">Cancel</button>
-                          <div class="or"></div>
-                          <button id="btn-form-save" type="button" class="ui button">Save</button>
-                        </div>
-
-                        <div class="ui segment">
-                            <h3>Properties</h3>
-                            <div id='form-properties'></div>
-                        </div>
-
-                        <div class="ui segment">
-                            <h3>Relations</h3>
-                            <div><ul id='form-relations'></ul></div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-            <!-- diagram -->
-            <div id='div-diagram' class="six wide column">
-                <div class="ui attached segment">
-                    <div id='diagram'></div>
-                </div>
-            </div>
-            <!-- tree -->
-        </div>
-
-        <!-- javascript -->
-        <!-- jQuery & jQuery UI -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-        <!-- semantic-ui -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
-        <!-- JointJS with dependencies - lodash, backbone -->
-        <script src="http://www.jointjs.com/js/vendor/lodash/lodash.min.js"></script>
-        <script src="http://www.jointjs.com/js/vendor/backbone/backbone-min.js"></script>
-        <script src="http://www.jointjs.com/cms/downloads/joint.min.js"></script>
-        <!-- local files -->
-        <!-- index functions and globals -->
-        <script src="index.js"></script>
-        <!-- diagram functions and data -->
-        <script src="diagram.js"></script>
-        <!-- infobox functions and data -->
-        <script src="form.js"></script>
-        <!-- serialization for experiment data and diagram -->
-        <script src="serialize.js"></script>
-    </body>
+$(document).ready(function() {
+    // populate workflow list
+    $.get('/workflow_processes/', function(data) {
+        data.workflows.forEach(function(workflow) {
+            var div = $('<div>', {
+                class: 'item',
+            });
+            div.append($('<a>', {
+                href: '/workflow_execution/' + workflow,
+                text: workflow
+            }));
+            $('#workflow-list').append(div);
+        });
+    });
+});
+</script>
+</body>
 </html>
