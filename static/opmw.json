@@ -193,86 +193,197 @@
     "execution": {
         "opmw:WorkflowExecutionAccount": {
             "properties": {
+                "rdfs:label": {
+                    "range": null,
+                    "input": "text",
+                    "dimension": 1,
+                    "required": true,
+                    "info": "label for experiment run",
+                    "label": "label"
+                },
                 "opmw:correspondsToTemplate": {
                     "range": "opmw:WorkflowTemplate",
-                    "input": "select",
-                    "info": "corresponds to Template"
+                    "input": "text",
+                    "dimension": 1,
+                    "required": true,
+                    "info": "corresponds to Template",
+                    "label": "template"
                 },
                 "opmw:hasStatus": {
                     "range": "string",
                     "input": "text",
-                    "info": "has Status"
+                    "dimension": 1,
+                    "required": true,
+                    "info": "has Status",
+                    "label": "status"
                 },
                 "opmw:hasExecutionDiagram": {
                     "range": "URI",
                     "input": "text",
-                    "info": "has Execution Diagram"
+                    "info": "has Execution Diagram",
+                    "dimension": 1,
+                    "required": false,
+                    "label": "diagram"
                 },
                 "opmw:executedInWorkflowSystem": {
                     "range": "ns:Agent",
-                    "input": "select",
-                    "info": "executed in Workflow System"
+                    "input": "text",
+                    "info": "executed in Workflow System",
+                    "dimension": 1,
+                    "required": false,
+                    "label": "workflow system"
                 },
                 "opmw:overallStartTime": {
                     "range": "datetime",
                     "input": "text",
-                    "info": "overall Start Time"
+                    "info": "overall Start Time",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "start time"
                 },
                 "opmw:overallEndTime": {
                     "range": "datetime",
                     "input": "text",
-                    "info": "overall End Time"
+                    "info": "overall End Time",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "end time"
                 }
             },
-            "relations": {},
-            "label": "Run"
+            "relations": {
+                "opmw:account": {
+                    "domain": [
+                        "opmw:WorkflowExecutionProcess",
+                        "opmw:WorkflowExecutionArtifact"
+                    ],
+                    "info": "has execution components",
+                    "label": "components"
+                }
+            },
+            "label": "Execution Run"
         },
         "opmw:WorkflowExecutionProcess": {
             "properties": {
+                "rdfs:label": {
+                    "range": null,
+                    "input": "text",
+                    "dimension": 1,
+                    "required": true,
+                    "info": "label for process",
+                    "label": "label"
+                },
                 "opmw:hasExecutableComponent": {
                     "range": null,
-                    "input": null,
-                    "info": "has Executable Component"
+                    "input": "text",
+                    "info": "has Executable Component",
+                    "dimension": "multi",
+                    "required": false,
+                    "label": "components"
                 },
                 "opmw:correspondsToTemplateProcess": {
                     "range": "opmw:WorkflowTemplateProcess",
-                    "input": "select",
-                    "info": "corresponds to Template Process"
+                    "input": "text",
+                    "info": "corresponds to Template Process",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "template process"
+                },
+                "opmw:used": {
+                    "range": "opmw:WorkflowExecutionArtifact",
+                    "input": "text",
+                    "dimension": "multi",
+                    "required": false,
+                    "info": "artifacts used",
+                    "label": "used artifacts"
+                },
+                "opmw:account": {
+                    "range": "opmw:WorkflowExecutionAccount",
+                    "input": "text",
+                    "dimension": 1,
+                    "required": true,
+                    "info": "execution account",
+                    "label": "execution account"
                 }
             },
-            "relations": {},
-            "label": "WorkflowExecutionProcess"
+            "relations": {
+                "opmw:wasGeneratedBy": {
+                    "domain": "opmw:WorkflowExecutionArtifact",
+                    "info": "was Generated by",
+                    "label": "generated by"
+                }
+            },
+            "label": "Execution Process"
         },
         "opmw:WorkflowExecutionArtifact": {
             "properties": {
+                "rdfs:label": {
+                    "range": null,
+                    "input": "text",
+                    "dimension": 1,
+                    "required": true,
+                    "info": "label for artifact",
+                    "label": "label"
+                },
                 "opmw:hasFileName": {
                     "range": "string",
                     "input": "text",
-                    "info": "has File Name"
+                    "info": "has File Name",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "filename"
                 },
                 "opmw:hasValue": {
                     "range": "string",
                     "input": "text",
-                    "info": "has Value"
+                    "info": "has Value",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "value"
                 },
                 "opmw:correspondsToTemplateArtifact": {
-                    "range": "opmw:WorkflowTemplateArtifact",
-                    "input": "select",
-                    "info": "corresponds to Template Artifact"
+                    "range": [
+                        "opmw:DataVariable",
+                        "opmw:ParameterVariable"
+                    ],
+                    "input": "text",
+                    "info": "corresponds to Template Artifact",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "template artifact"
                 },
                 "opmw:hasLocation": {
                     "range": "URI",
                     "input": "text",
-                    "info": "has Location"
+                    "info": "has Location",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "location"
                 },
                 "opmw:hasSize": {
                     "range": "int",
                     "input": "text",
-                    "info": "has Size"
+                    "info": "has Size",
+                    "dimension": 1,
+                    "required": true,
+                    "label": "size"
+                },
+                "opmw:wasGeneratedBy": {
+                    "range": "opmw:WorkflowExecutionProcess",
+                    "input": "text",
+                    "info": "was generated by",
+                    "dimension": 1,
+                    "required": false,
+                    "label": "generated by"
                 }
             },
-            "relations": {},
-            "label": "WorkflowExecutionArtifact"
+            "relations": {
+                "opmw:used": {
+                    "domain": "opmw:WorkflowExecutionProcess",
+                    "info": "used by execution process",
+                    "label": "used by process"
+                }
+            },
+            "label": "Execution Artifact"
         }
     }
 }

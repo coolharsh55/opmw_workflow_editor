@@ -39,7 +39,7 @@ var form_data = {
  * save form
  *
  * Will save the form data into the element data
- * and add it to experiment_data under appropriate element type.
+ * and add it to execution_data under appropriate element type.
  *
  * @return {boolean} returns save status
  */
@@ -56,13 +56,13 @@ var form_save = function() {
     }
 
     // check if there is a duplicate ID
-    if (form_data.object["rdfs:label"] in experiment_data_labels) {
-        if (experiment_data_labels[form_data.object["rdfs:label"]] != form_data.object) {
-            alert('label already in use');
-            console.warn('duplicate element ID', form_data.object["rdfs:label"]);
-            return false;
-        }
-    }
+    // if (form_data.object["rdfs:label"] in execution_data_labels) {
+    //     if (execution_data_labels[form_data.object["rdfs:label"]] != form_data.object) {
+    //         alert('label already in use');
+    //         console.warn('duplicate element ID', form_data.object["rdfs:label"]);
+    //         return false;
+    //     }
+    // }
 
     // TODO: add node of element to tree like node-(id)
     // this makes it easy to reverse reference any node from the element
@@ -71,15 +71,15 @@ var form_save = function() {
     // though, clicking on the node still opens the correct (previously assigned) element in form
 
     // add form element to element_data
-    if (form_data.object.id == null) {
-        experiment_data[form_data.type].push(form_data.object);
-        experiment_data_labels[form_data.object["rdfs:label"]] = form_data.object;
-        form_data.object.id = 0;
-        // attach element to tree
-        if (form_data.type == "opmw:WorkflowTemplate") {
-            $('#btn-template').text(form_data.object["rdfs:label"]);
-        }
-    }
+    // if (form_data.object.id == null) {
+    //     execution_data[form_data.type].push(form_data.object);
+    //     execution_data_labels[form_data.object["rdfs:label"]] = form_data.object;
+    //     form_data.object.id = 0;
+    //     // attach element to tree
+    //     if (form_data.type == "opmw:WorkflowTemplate") {
+    //         $('#btn-template').text(form_data.object["rdfs:label"]);
+    //     }
+    // }
 
     // add diagram for element
     if (!form_add_diagram()) {
@@ -87,7 +87,7 @@ var form_save = function() {
     }
 
     form_make(form_data.type, form_data.schema, form_data.object);
-    console.debug("saved element", form_data.object, experiment_data);
+    console.debug("saved element", form_data.object, execution_data);
     return true;
 }
 
@@ -114,42 +114,41 @@ var form_add_diagram = function() {
     var diag_properties = null;
 
     // data variable
-    if (form_data.type == "opmw:DataVariable") {
-        if (form_data.object["opmw:isGeneratedBy"]) {
-            draw_diag = diag_add_data_op_var;
-            diag_properties = {
-                text: form_data.object["rdfs:label"],
-                source: null
-            };
-            if (form_data.object["opmw:isGeneratedBy"]) {
-                diag_properties.source = form_data.object["opmw:isGeneratedBy"].diagram;
-            }
+    // parameter variable
+    if (form_data.type == "opmw:WorkflowExecutionArtifact") {
+        diag_properties = {
+            text: form_data.object["rdfs:label"],
+            diagram: form_data.object.diagram_properties.diagram,
+            validated: true
+        }
+        if (form_data.object.template.generated_by == undefined) {
+            // param
+            diag_add_param_var(diag_properties)
+        } else if (form_data.object.template.generated_by == null || form_data.object.template.generated_by === "None") {
+            // data var
+            diag_add_data_var(diag_properties);
         } else {
-            draw_diag = diag_add_data_var;
-            diag_properties = {
-                text: form_data.object["rdfs:label"]
-            };
+            // data var op
+            diag_properties.source = form_data.object["opmw:wasGeneratedBy"].diagram_properties.diagram;
+            diag_add_data_op_var(diag_properties);
         }
     }
 
-    // parameter variable
-    else if (form_data.type == "opmw:ParameterVariable") {
-        draw_diag = diag_add_param_var;
-        diag_properties = {
-            text: form_data.object["rdfs:label"]
-        };
-    }
-
     // step
-    else if (form_data.type == "opmw:WorkflowTemplateProcess") {
-        draw_diag = diag_add_step;
+    else if (form_data.type == "opmw:WorkflowExecutionProcess") {
         diag_properties = {
             text: form_data.object["rdfs:label"],
+            diagram: form_data.object.diagram_properties.diagram,
+            validated: true,
             uses: []
         };
-        form_data.object["opmw:uses"].forEach(function(link, index) {
-            diag_properties.uses.push(link.diagram);
+        console.log("step diagram", diag_properties);
+        form_data.object["opmw:used"].forEach(function(link, index) {
+            link = execution_data_labels[link];
+            console.log(link);
+            diag_properties.uses.push(link.diagram_properties.diagram);
         });
+        diag_add_step(diag_properties);
     }
 
     // other elements
@@ -161,13 +160,13 @@ var form_add_diagram = function() {
     if (diag_properties == null) {
         console.debug("no diagram added for element", form_data.object);
     } else {
-        diag_properties.diagram = form_data.object.diagram;
-        var diag_id = draw_diag(diag_properties);
-        if (diag_id == null) {
-            console.error("failed: drawing diagram for element", form_data.object);
-        } else {
-            form_data.object.diagram = diag_id;
-        }
+        // diag_properties.diagram = form_data.object.diagram;
+        // draw_diag(diag_properties);
+        // if (diag_id == null) {
+        //     console.error("failed: drawing diagram for element", form_data.object);
+        // } else {
+        //     form_data.object.diagram = diag_id;
+        // }
     }
     return true;
 }
@@ -187,7 +186,7 @@ var form_validate = function() {
     // check each input
     $('form#infobox').find('input').each(function() {
         // if it is required, check if it has a value
-        if ($(this).prop('required') && !$(this).val()) {
+        if (($(this).prop('required') && !$(this).val()) || $(this).val().lastIndexOf("label not set") === 0) {
             // if it is empty, highlight it with a red border
             $(this).parent().addClass('error');
             // mark this form as not validated
@@ -233,7 +232,7 @@ var form_add_element_data = function() {
                 form_data.object[key] = [];
                 var select_val = $('#dropdown-' + key.replace(':', '-')).dropdown('get value');
                 for (var i=0; i<select_val.length-1; i++) {
-                    var related_obj = experiment_data_labels[select_val[i]];
+                    var related_obj = execution_data_labels[select_val[i]];
                     form_data.object[key].push(related_obj);
                     related_obj.links[key].push(form_data.object);
                 };
@@ -248,7 +247,7 @@ var form_add_element_data = function() {
                     if ($('#related-' + key.replace(':', '-')).length) {
                         $('#related-' + key.replace(':', '-')).append($('<div>', {class: item, text: select_val}));
                     }
-                    var related_obj = experiment_data_labels[select_val];
+                    var related_obj = execution_data_labels[select_val];
                     // check if element object exists (it should!)
                     if (related_obj == null) {
                         // console.error("finding related object with label", label_related_obj);
@@ -307,9 +306,7 @@ var form_add_property = function(field_name, field) {
                     }
                 }));
                 div.append(
-                    '<label>author ' +
-                    ($('#group-' + field_name.replace(':', '-')).find('.field').length + 1) +
-                    '</label>');
+                    $('#group-' + field_name.replace(':', '-')).find('.field').length + 1);
                 div.append($("<input>", {
                     field_type: 'text',
                     name: field_name,
@@ -334,10 +331,18 @@ var form_add_property = function(field_name, field) {
                 text: field.label,
                 class: 'ui label'
             }));
-            if (form_data.object[field_name].length == 0) {
+            console.log("multi", form_data.object[field_name]);
+            if (form_data.object[field_name] == null || form_data.object[field_name].length == 0) {
                 add_input_to_group(null);
             } else {
                 form_data.object[field_name].forEach(function(name) {
+                    if (typeof(name) !== 'string') {
+                        if (name["rdfs:label"] == null) {
+                            name = 'unlabeled ' + name.type;
+                        } else {
+                            name = name["rdfs:label"];
+                        }
+                    }
                     add_input_to_group(name);
                 });
             }
@@ -376,11 +381,24 @@ var form_add_property = function(field_name, field) {
                 text: field.label,
                 class: 'ui label'
             }));
+            var field_value = form_data.object[field_name];
+            if (field_value !== null && typeof(field_value) !== 'string') {
+                console.log("field value", field_value);
+                if (field_value.type != undefined) {
+                    if (field_value["rdfs:label"] == null) {
+                        field_value = 'label not set for ' + field_value.type;
+                    } else {
+                        field_value = field_value["rdfs:label"];
+                    }
+                } else {
+                    field_value = 'unknown type';
+                }
+            }
             var input = $("<input>", {
                 field_type: 'text',
                 name: field_name,
                 required: field.required,
-                value: form_data.object[field_name]
+                value: field_value
             });
             div.append(input);
             $('#form-properties').append(div);
@@ -417,8 +435,8 @@ var form_add_property = function(field_name, field) {
             console.debug("field range for property", field_range_vals);
             select.append("<option value>Select</option>");
             field_range_vals.forEach(function(field_range, index) {
-                if (experiment_data[field_range] != null) {
-                    experiment_data[field_range].forEach(function(field_obj, index) {
+                if (execution_data[field_range] != null) {
+                    execution_data[field_range].forEach(function(field_obj, index) {
                         select.append($("<option>", {
                             value: field_obj["rdfs:label"],
                             text: field_obj["rdfs:label"]
@@ -472,11 +490,11 @@ var form_add_property = function(field_name, field) {
             // $('#multi-select-title').text(field.label)
             // $('#multi-select-options').empty();
             // field.range.forEach(function(field_range, index) {
-            //     if (experiment_data[field_range] != null) {
+            //     if (execution_data[field_range] != null) {
             //         var holder_div = $('<div>');
             //         holder_div.append('<h4>' + OPMW.elements[field_range].label + '</h4>')
             //         form_listing[OPMW.elements[field_range].label] = [];
-            //         experiment_data[field_range].forEach(function(field_obj, index) {
+            //         execution_data[field_range].forEach(function(field_obj, index) {
             //             var checkbox_checked = false;
             //             for(var i=0; i<form_data.object[field_name].length; i++) {
             //                 if (form_data.object[field_name][i] == field_obj) {
@@ -529,8 +547,8 @@ var form_add_property = function(field_name, field) {
             }
             console.debug("field range for property", field_range_vals);
             field_range_vals.forEach(function(field_range, index) {
-                if (experiment_data[field_range] != null) {
-                    experiment_data[field_range].forEach(function(field_obj, index) {
+                if (execution_data[field_range] != null) {
+                    execution_data[field_range].forEach(function(field_obj, index) {
                         var div = $('<div>', {
                             class: "item",
                             "data-value": field_obj["rdfs:label"],
@@ -598,9 +616,7 @@ var form_add_property = function(field_name, field) {
  * @return {nothing}
  */
 var form_make = function(type, schema, object) {
-    if (object == undefined) {
-        object = null;
-    }
+
     console.debug("creating form for", type, schema, object);
     $('#element-type').text(schema.label);
     // TODO: check, validate, save previous form data before making new one
@@ -609,28 +625,12 @@ var form_make = function(type, schema, object) {
     //      and if it is saved, then just creat the new form
     //      otherwise save and exit? or ask if they want to lose the data?
 
-    // object is the instance of that element
-    // if it is null, then we create a new element
-    if (object == null) {
-        // create new element for schema
-        // console.debug("element schema", schema);
-        object = {id: null, schema: schema, type: type, links: {}};
-        Object.keys(schema.properties).forEach(function(key, index) {
-            var property = schema.properties[key];
-            if (property.dimension == "multi") {
-                object[key] = [];
-            } else {
-                object[key] = null;
-            }
-        });
-        Object.keys(schema.relations).forEach(function(key, index) {
-            object.links[key] = [];
-        });
-        $('#form-experiment-label').text('untitled');
-        console.debug("new schema object", object);
+    if (object["rdfs:label"] == null) {
+        $('#form-experiment-label').text("label undefined");
     } else {
         $('#form-experiment-label').text(object["rdfs:label"]);
     }
+
     // add details to form object
     form_data.type = type;
     form_data.schema = schema;
@@ -645,7 +645,13 @@ var form_make = function(type, schema, object) {
     $('#form-label').text(schema.label);
 
     // create elements for each property
+    var not_properties = ["schema", "type", "links"];
     Object.keys(schema.properties).forEach(function(key, index) {
+        for (var i=0; i<not_properties.length; i++) {
+            if (not_properties[i] == key) {
+                return;
+            }
+        }
         // add property field to form
         var property = schema.properties[key];
         form_add_property(key, property);
@@ -663,10 +669,15 @@ var form_make = function(type, schema, object) {
             class: "ui bulleted list"
         });
         div.append(list);
+        console.log("links", key, object.links[key]);
         object.links[key].forEach(function(ele, index) {
+            var ele_text = ele["rdfs:label"];
+            if (ele_text == null || ele_text === "None") {
+                ele_text = ele.schema.label + " linked to " + ele.template.uri;
+            }
             list.append($('<div>', {
                 class: "item",
-                text: ele["rdfs:label"]
+                text: ele_text
             }));
         });
         $('#form-relations').append(div);

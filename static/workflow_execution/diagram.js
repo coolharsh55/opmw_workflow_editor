@@ -38,8 +38,8 @@ var paper = new joint.dia.Paper({
  */
 paper.on('cell:pointerclick', function(cellView, evt, x, y) {
     // console.debug(cellView, evt, x, y);
-    var element_label = cellView.model.attributes.attrs.text.text;
-    var object = experiment_data_labels[element_label];
+    object = execution_diagram[cellView.model.id];
+    console.log(object);
     // console.debug(element_label);
     // console.debug("element clicked", experiment_data_labels[element_label]);
     form_make(object.type, object.schema, object);
@@ -60,10 +60,11 @@ paper.on('cell:pointerclick', function(cellView, evt, x, y) {
  */
 var joint_shape_data_var = new joint.shapes.basic.Ellipse({
     attrs: {
-        ellipse: { fill: '#285526'},
+        ellipse: { fill: '#285526', stroke: 'red'},
         text: {text: 'data', fill: 'white'}
     }
 });
+
 /**
  * Parameter Variable
  * @type {joint.shapes.basic.Ellipse}
@@ -73,7 +74,7 @@ var joint_shape_data_var = new joint.shapes.basic.Ellipse({
  */
 var joint_shape_param_var = new joint.shapes.basic.Ellipse({
     attrs: {
-        ellipse: { fill: '#E29414'},
+        ellipse: { fill: '#E29414', stroke: 'red'},
         text: {text: 'param', fill: 'black'}
     }
 });
@@ -86,7 +87,7 @@ var joint_shape_param_var = new joint.shapes.basic.Ellipse({
  */
 var joint_shape_data_op_var = new joint.shapes.basic.Ellipse({
     attrs: {
-        ellipse: { fill: '#032553'},
+        ellipse: { fill: '#032553', stroke: 'red'},
         text: {text: 'data', fill: 'white'}
     }
 });
@@ -99,11 +100,10 @@ var joint_shape_data_op_var = new joint.shapes.basic.Ellipse({
  */
 var joint_shape_step = new joint.shapes.basic.Rect({
     attrs: {
-        rect: { fill: '#FEC288', rx: 5, ry:5},
+        rect: { fill: '#FEC288', stroke: 'red', rx: 5, ry:5},
         text: { text: 'step', fill: 'black'}
     }
 });
-
 
 /*
     create a basic diagram - for testing purpose
@@ -187,6 +187,9 @@ var diag_add_data_var = function(data_var) {
         var data_diag = joint_shape_data_var.clone();
         data_diag.attr({text: {text: data_var.text}});
         data_diag.position(200, 200);
+        if (data_var.validated != undefined) {
+            data_diag.attr({ellipse: {stroke: 'black'}});
+        }
         data_diag.resize(100, 30);
         graph.addCells([data_diag]);
         console.info("added data variable diagram", data_diag.id);
@@ -195,6 +198,9 @@ var diag_add_data_var = function(data_var) {
     else {
         var data_diag = graph.getCell(data_var.diagram);
         data_diag.attr({text: {text: data_var.text}});
+        if (data_var.validated != undefined) {
+            data_diag.attr({ellipse: {stroke: 'black'}});
+        }
         // clear all inbound links for this node
         var links = graph.getConnectedLinks(data_diag, {inbound:true});
         links.forEach(function(link, index) {
@@ -218,6 +224,9 @@ var diag_add_data_op_var = function(data_var) {
         data_diag.attr({text: {text: data_var.text}});
         data_diag.position(200, 200);
         data_diag.resize(100, 30);
+        if (data_var.validated != undefined) {
+            data_diag.attr({ellipse: {stroke: 'black'}});
+        }
         data_diag.addTo(graph);
         diag_add_link(from=data_var.source, to=data_diag.id);
         console.info("added data variable (artifact) diagram", data_diag.id);
@@ -226,6 +235,9 @@ var diag_add_data_op_var = function(data_var) {
     else {
         var data_diag = graph.getCell(data_var.diagram);
         data_diag.attr({text: {text: data_var.text}});
+        if (data_var.validated != undefined) {
+            data_diag.attr({ellipse: {stroke: 'black'}});
+        }
         var links = graph.getConnectedLinks(data_diag, {inbound: true});
         // if links are present
         if (links.length != 0) {
@@ -257,6 +269,9 @@ var diag_add_param_var = function(param_var) {
         param_diag.attr({text: {text: param_var.text}});
         param_diag.position(200, 200);
         param_diag.resize(100, 30);
+        if (param_var.validated != undefined) {
+            param_diag.attr({ellipse: {stroke: 'black'}});
+        }
         graph.addCells([param_diag]);
         console.info("added parameter variable diagram", param_diag.id);
     }
@@ -264,6 +279,9 @@ var diag_add_param_var = function(param_var) {
     else {
         var param_var_diag = graph.getCell(param_var.diagram);
         param_var_diag.attr({text: {text: param_var.text}});
+        if (param_var.validated != undefined) {
+            param_var_diag.attr({ellipse: {stroke: 'black'}});
+        }
         console.info("modified parameter variable diagram", param_var_diag.id);
     }
     return param_diag.id;
@@ -275,12 +293,16 @@ var diag_add_param_var = function(param_var) {
  * @return {bool}          operation status
  */
 var diag_add_step = function(step) {
+    console.log("diagram for step", step);
     // check for unsaved (new) element
     if (step.diagram == undefined) {
         var step_diag = joint_shape_step.clone();
         step_diag.attr({text: {text: step.text}});
         step_diag.position(200, 200);
         step_diag.resize(100, 30);
+        if (step.validated != undefined) {
+            step_diag.attr({rect: {stroke: 'black'}});
+        }
         step_diag.addTo(graph);
         // if the element is related, draw a link for it
         step.uses.forEach(function(linked_diag, index) {
@@ -292,6 +314,9 @@ var diag_add_step = function(step) {
     else {
         var step_diag = graph.getCell(step.diagram);
         step_diag.attr({text: {text: step.text}});
+        if (step.validated != undefined) {
+            step_diag.attr({rect: {stroke: 'black'}});
+        }
         var links = graph.getConnectedLinks(step_diag, {inbound: true});
         links.forEach(function(link, index) {
             link.remove();

@@ -37,10 +37,7 @@
 
     <body>
         <div class="ui top fixed menu">
-            <a id='btn-template' class='ui basic  label item'><b>template</b></a>
-            <a id='btn-add-data-var' class='ui basic label item'>add data variable</a>
-            <a id='btn-add-param-var' class='ui basic label item'>add parameter variable</a>
-            <a id='btn-add-step' class='ui basic label item'>add step</a>
+            <a id='btn-template' class='ui basic  label item'><b>execution run</b></a>
             <div class="ui right menu">
             <a id='btn-publish' class='ui basic label item' onclick="serialize_publish();">publish</a>
             <a id='import-data' class='ui basic label item' onclick="document.getElementById('btn-import').click();">import data</a>
@@ -98,14 +95,22 @@
         <script src="http://www.jointjs.com/js/vendor/lodash/lodash.min.js"></script>
         <script src="http://www.jointjs.com/js/vendor/backbone/backbone-min.js"></script>
         <script src="http://www.jointjs.com/cms/downloads/joint.min.js"></script>
+        <!-- canvg -->
+        <script type="text/javascript" src="/rgbcolor.js"></script>
+        <script type="text/javascript" src="/StackBlur.js"></script>
+        <script type="text/javascript" src="/canvg.js"></script>
         <!-- local files -->
         <!-- index functions and globals -->
-        <script src="/workflow_template/new_workflow.js"></script>
+        <script src="/workflow_execution/execute_workflow.js"></script>
         <!-- diagram functions and data -->
-        <script src="/workflow_template/diagram.js"></script>
+        <script src="/workflow_execution/diagram.js"></script>
         <!-- infobox functions and data -->
-        <script src="/workflow_template/form.js"></script>
+        <script src="/workflow_execution/form.js"></script>
         <!-- serialization for experiment data and diagram -->
-        <script src="/workflow_template/serialize.js"></script>
+        <script src="/workflow_execution/serialize.js"></script>
+        <!-- template data -->
+        <script type="text/javascript">
+        var template = {{ data|safe }};
+        </script>
     </body>
 </html>

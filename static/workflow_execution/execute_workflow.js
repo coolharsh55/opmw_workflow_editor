@@ -14,11 +14,36 @@
 var OPMW = null;
 // experiment data holds the experiment data produced in the workflow editor
 // is a dictionary by types
-var experiment_data = {};
+var execution_data = {};
 // `experiment data labels` holds references to the various elements
 // instantiated which can be accessed using their labels
 // It also holds references in the tree and in the diagram
-var experiment_data_labels = {};
+var execution_data_labels = {};
+var execution_diagram = {};
+var execution_account = null;
+// link template objects with execution objects
+var linked_template_objects = {};
+
+var _make_empty_object = function(opmw_execution_key) {
+    var opmw_execution_item = OPMW.execution[opmw_execution_key];
+    var object = {};
+    Object.keys(opmw_execution_item.properties).forEach(function(property, index) {
+        if (property.dimension > 1) {
+            object[property] = [];
+        } else {
+            object[property] = null;
+        }
+    });
+    object.links = {};
+    Object.keys(opmw_execution_item.relations).forEach(function(relation, index) {
+        if (typeof(relation.domain) === 'string') {
+            object.links[relation] = null;
+        } else {
+            object.links[relation] = [];
+        }
+    });
+    return object;
+};
 
 /*
     on document ready
@@ -35,17 +60,117 @@ $('document').ready(function() {
         console.info("loaded opmw.json");
         // for debug purposes, ALWAYS log the OPMW to console
         console.debug("opmw.json", OPMW);
-        // TODO: set up types for experiment data
-        // add each type from OPMW.elements to experiment_data
-        Object.keys(OPMW.elements).forEach(function(type, index) {
-            experiment_data[type] = [];
-        });
-        console.debug("experiment data", experiment_data);
 
-        // make form for experiment
+        // create execution objects for template
+        // execution account
+        var account = _make_empty_object("opmw:WorkflowExecutionAccount");
+        account.type = "opmw:WorkflowExecutionAccount";
+        account.schema = OPMW.execution[account.type];
+        account["opmw:correspondsToTemplate"] = template.template.uri;
+        account.template = template.template;
+        linked_template_objects[template.template.uri] = account;
+        execution_account = account;
+        console.log("account", account);
+        // execution_data.account = account;
+
+        // data vars
+        var data_variables = [];
+        for (var i=0; i<template.data_variables.length; i++) {
+            var data_var = _make_empty_object("opmw:WorkflowExecutionArtifact");
+            data_var.type = "opmw:WorkflowExecutionArtifact";
+            data_var.schema = OPMW.execution[data_var.type];
+            data_var["opmw:account"] = account;
+            account.links["opmw:account"].push(data_var);
+            data_var["opmw:correspondsToTemplateArtifact"] = template.data_variables[i].uri;
+            data_var.template = template.data_variables[i];
+            linked_template_objects[template.data_variables[i].uri] = data_var;
+            data_variables.push(data_var);
+            data_var.diagram_properties = { text: data_var.template.label };
+            if (data_var.template.generated_by == null || data_var.template.generated_by === "None") {
+                data_var.diagram_properties.diagram = diag_add_data_var(data_var.diagram_properties);
+                execution_diagram[data_var.diagram_properties.diagram] = data_var;
+                console.log("data var diagram", data_var);
+            } else {
+                console.log("data var is not generated", data_var);
+            }
+        };
+        console.log("data variables", data_variables);
+
+        // parameters
+        var parameters = [];
+        for (var i=0; i<template.parameters.length; i++) {
+            var parameter = _make_empty_object("opmw:WorkflowExecutionArtifact");
+            parameter.type = "opmw:WorkflowExecutionArtifact";
+            parameter.schema = OPMW.execution[parameter.type];
+            parameter["opmw:account"] = account;
+            account.links["opmw:account"].push(parameter);
+            parameter["opmw:correspondsToTemplateArtifact"] = template.parameters[i].uri;
+            parameter.template = template.parameters[i];
+            linked_template_objects[template.parameters[i].uri] = parameter;
+            parameters.push(parameter);
+            parameter.diagram_properties = { text: parameter.template.label };
+            parameter.diagram_properties.diagram = diag_add_param_var(parameter.diagram_properties);
+            execution_diagram[parameter.diagram_properties.diagram] = parameter;
+        };
+        console.log("parameters", parameters);
+
+        // steps
+        var steps = [];
+        for (var i=0; i<template.steps.length; i++) {
+            var step = _make_empty_object("opmw:WorkflowExecutionProcess");
+            step.type = "opmw:WorkflowExecutionProcess";
+            step.schema = OPMW.execution[step.type];
+            step["opmw:account"] = account;
+            account.links["opmw:account"].push(step);
+            step["opmw:correspondsToTemplateProcess"] = template.steps[i].uri;
+            step.template = template.steps[i];
+            linked_template_objects[template.steps[i].uri] = step;
+            steps.push(step);
+            step.links = {
+                "opmw:wasGeneratedBy": []
+            };
+            step.diagram_properties = { text: step.template.label, uses: [] };
+            step.diagram_properties.diagram = diag_add_step(step.diagram_properties);
+            execution_diagram[step.diagram_properties.diagram] = step;
+        };
+        console.log("steps", steps);
+
+        // link objects together
+        // link data parameters to steps
+        data_variables.forEach(function(data_var, index) {
+            var generated_by = data_var.template.generated_by;
+            if (!(generated_by === "None" || generated_by == null)) {
+                data_var["opmw:wasGeneratedBy"] = linked_template_objects[generated_by];
+                linked_template_objects[generated_by].links["opmw:wasGeneratedBy"].push(data_var);
+                data_var.diagram_properties.source = data_var["opmw:wasGeneratedBy"].diagram_properties.diagram;
+                data_var.diagram_properties.diagram = diag_add_data_op_var(data_var.diagram_properties);
+                execution_diagram[data_var.diagram_properties.diagram] = data_var;
+            }
+        });
+        // link artifacts used within steps
+        steps.forEach(function(step, index) {
+            step["opmw:used"] = [];
+            step.template.uses.forEach(function(artifact, index) {
+                step["opmw:used"].push(linked_template_objects[artifact]);
+                linked_template_objects[artifact].links["opmw:used"].push(step);
+                step.diagram_properties.uses.push(linked_template_objects[artifact].diagram_properties.diagram);
+            });
+            step.diagram_properties.diagram = diag_add_step(step.diagram_properties);
+            execution_diagram[step.diagram_properties.diagram] = step;
+        });
+
+        $('#btn-template').click(function() {
+            form_make(
+                type=execution_account.type,
+                schema=execution_account.schema,
+                execution_account);
+        });
+
+        // render the form for the execution run
         form_make(
-            OPMW.begin,         // element type
-            OPMW.elements[OPMW.begin]);  // element schema);
+            type=account.type,
+            schema=account.schema,
+            object=account);
     });
 
 });
@@ -56,41 +181,6 @@ $('#btn-form-save').click(function() {
 $('#btn-form-cancel').click(function() {
     form_cancel();
 });
-
-$('#btn-template').click(function() {
-    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
-        form_make(
-            "opmw:WorkflowTemplate",
-            OPMW.elements["opmw:WorkflowTemplate"],
-            experiment_data["opmw:WorkflowTemplate"][0]);
-    } else {
-        // do nothing
-    }
-});
-// on click event handler for Data variable
-$('#btn-add-data-var').click(function() {
-    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
-        form_make(
-            "opmw:DataVariable",
-            OPMW.elements["opmw:DataVariable"], null);
-    }
-});
-// on click event handler Parameter variables
-$('#btn-add-param-var').click(function() {
-    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
-        form_make(
-            "opmw:ParameterVariable",
-            OPMW.elements["opmw:ParameterVariable"], null);
-    }
-});
-// on click event handler for + button in Step
-$('#btn-add-step').click(function() {
-    if (experiment_data["opmw:WorkflowTemplate"].length != 0) {
-        form_make(
-            "opmw:WorkflowTemplateProcess",
-            OPMW.elements["opmw:WorkflowTemplateProcess"], null);
-    }
-})
 
 
 // input file event
@@ -108,4 +198,4 @@ function readFile (evt) {
    reader.readAsText(file)
 }
 
-console.info('loaded index.js');
+console.info('loaded execute_workflow.js');
