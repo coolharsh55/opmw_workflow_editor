@@ -43,11 +43,11 @@ import datetime
 from rdflib import Graph
 from rdflib import URIRef, Literal
 
-from namespaces import namespace_manager
-from namespaces import RDF, RDFS, XSD
-from namespaces import OPMO, OPMW, PROV, PPLAN, DC, DCTERMS
+from .namespaces import namespace_manager
+from .namespaces import RDF, RDFS, XSD
+from .namespaces import OPMO, OPMW, PROV, PPLAN, DC, DCTERMS
 
-from resource import RDFResource
+from .resource import RDFResource
 
 
 class WorkflowExecutionAccount(RDFResource):
