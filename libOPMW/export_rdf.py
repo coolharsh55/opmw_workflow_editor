@@ -182,7 +182,7 @@ def graph_parameter(parameter):
 def graph_variable(variable):
     graph = _graph_with_namespace()
     n_variable = this_project[variable['rdfs:label']]
-    graph.add((n_variable, RDF.type, opmw.ParameterVariable))
+    graph.add((n_variable, RDF.type, opmw.DataVariable))
     graph.add((n_variable, RDF.type, opmw.WorkflowTemplateArtifact))
     # label
     graph.add((n_variable, RDFS.label, Literal(variable['rdfs:label'])))
@@ -260,6 +260,80 @@ def get_experiments(label):
     return experiments
 
 
+def check_template_exists(label):
+    graph = Graph('SQLAlchemy', identifier=ident)
+    graph.open(uri, create=True)
+    try:
+        query = '''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?label
+            WHERE {
+              ?s rdfs:label "%s" .
+              ?s a  <http://www.opmw.org/ontology/WorkflowTemplate>
+            }''' % label
+        results = list(graph.query(query))
+        if len(results) > 0:
+            return True
+        return False
+    except Exception:
+        return False
+    finally:
+        graph.close()
+
+
+def get_template(label):
+
+    def get_component_query(component, relation, template_uri):
+        return '''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            SELECT ?uri ?label
+            WHERE {
+              ?uri a opmw:%s .
+              ?uri opmw:%s <%s> .
+              ?uri rdfs:label ?label .
+            }''' % (component, relation, template_uri)
+
+    graph = Graph('SQLAlchemy', identifier=ident)
+    graph.open(uri, create=True)
+    try:
+        query = '''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            SELECT ?uri
+            WHERE {
+              ?uri rdfs:label "%s" .
+              ?uri a  opmw:WorkflowTemplate
+            }''' % label
+        template_uri = list(graph.query(query))
+        if len(template_uri) == 0:
+            raise Exception('template URI cannot be found')
+        template_uri = template_uri[0][0]
+        print(template_uri)
+
+        query = get_component_query(
+            'DataVariable', 'isVariableOfTemplate', template_uri)
+        data_vars = list(graph.query(query))
+        print(data_vars)
+
+        query = get_component_query(
+            'ParameterVariable', 'isParameterOfTemplate', template_uri)
+        parameters = list(graph.query(query))
+        print(parameters)
+
+        query = get_component_query(
+            'WorkflowTemplateProcess', 'isStepOfTemplate', template_uri)
+        steps = list(graph.query(query))
+        print(steps)
+
+        return template_uri, data_vars, parameters, steps
+
+    except Exception:
+        pass
+    finally:
+        graph.close()
+
+
 def sparql_query(query):
     graph = Graph('SQLAlchemy', identifier=ident)
     graph.open(uri, create=True)
@@ -290,3 +364,9 @@ def list_workflows():
     finally:
         graph.close()
     return results
+
+
+def get_graph():
+    graph = Graph('SQLAlchemy', identifier=ident)
+    graph.open(uri, create=True)
+    return graph
