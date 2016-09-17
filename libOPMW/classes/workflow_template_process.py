@@ -232,7 +232,9 @@ class WorkflowTemplateProcess(RDFResource):
             'isStepOfTemplate':
                 lambda p, x: setattr(p, 'template', x),
             'uses': _handler_for_list_of_uris('uses'),
-            'isGeneratedBy': _handler_for_list_of_uris('generates')
+            'isGeneratedBy': _handler_for_list_of_uris('generates'),
+            'correspondsToTemplateProcess':
+                _handler_for_list_of_uris('execution_processes')
         }
 
         step = WorkflowTemplateProcess()

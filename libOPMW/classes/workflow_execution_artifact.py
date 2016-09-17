@@ -65,6 +65,20 @@ class WorkflowExecutionArtifact(RDFResource):
         # links
         self._used_by = []
 
+    @property
+    def uri(self):
+        return self._uri
+
+    @uri.setter
+    def uri(self, value):
+        if isinstance(value, str):
+            self._uri = URIRef(value)
+        elif isinstance(value, URIRef):
+            self._uri = value
+        else:
+            raise ValueError('label must be a string')
+        print(self._uri)
+
     # rdfs:label
     # label is a string for the artifacts title
     # label types can be str, xsd:string
@@ -211,8 +225,8 @@ class WorkflowExecutionArtifact(RDFResource):
         # opmo:account
         graph.add((artifact, OPMO.account, self._account))
         # opmw:wasGeneratedBy
-        if self._geneated_by:
-            graph.add((artifact, OPMW.wasGeneratedBy, self._geneated_by))
+        if self._generated_by:
+            graph.add((artifact, OPMW.wasGeneratedBy, self._generated_by))
         # opmw:hasFileName
         if self._filename:
             graph.add((artifact, OPMW.hasFileName, self._filename))

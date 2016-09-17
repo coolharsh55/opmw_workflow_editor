@@ -260,7 +260,9 @@ class DataVariable(RDFResource):
                 lambda p, x: setattr(p, 'template', x),
             'isGeneratedBy':
                 lambda p, x: setattr(p, 'generated_by', x),
-            'uses': _handler_for_list_of_uris('used_by')
+            'uses': _handler_for_list_of_uris('used_by'),
+            'correspondsToTemplateArtifact':
+                _handler_for_list_of_uris('execution_artifacts')
         }
 
         data_var = DataVariable()

@@ -317,6 +317,25 @@ class WorkflowTemplate(RDFResource):
                     raise
         self._steps = steps
 
+    @property
+    def execution_accounts(self):
+        return self._execution_accounts
+
+    @execution_accounts.setter
+    def execution_accounts(self, values):
+        if not isinstance(values, collections.Iterable):
+            raise ValueError('contributors should be a list')
+        accounts = []
+        for value in values:
+            if isinstance(value, URIRef):
+                accounts.append(value)
+            else:
+                try:
+                    accounts.append(URIRef(value))
+                except ValueError:
+                    raise ValueError('failed to convert contributor to URI')
+        self._execution_accounts = accounts
+
     def validate(self):
         """validate this template instance
         returns boolean result along with error message"""
@@ -417,7 +436,9 @@ class WorkflowTemplate(RDFResource):
             'isVariableOfTemplate':
                 _handler_for_list_of_uris('data_variables'),
             'isStepOfTemplate':
-                _handler_for_list_of_uris('steps')
+                _handler_for_list_of_uris('steps'),
+            'correspondsToTemplate':
+                _handler_for_list_of_uris('execution_accounts')
         }
 
         template = WorkflowTemplate()

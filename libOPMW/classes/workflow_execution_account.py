@@ -56,7 +56,7 @@ class WorkflowExecutionAccount(RDFResource):
     def __init__(self):
 
         # execution account uri
-        # self._uri = None
+        self._uri = None
 
         # attributes
         self._label = None
@@ -73,6 +73,20 @@ class WorkflowExecutionAccount(RDFResource):
         # self._data_variables = []
         # self._steps = []
         self._is_account_of = []
+
+    @property
+    def uri(self):
+        return self._uri
+
+    @uri.setter
+    def uri(self, value):
+        if isinstance(value, str):
+            self._uri = URIRef(value)
+        elif isinstance(value, URIRef):
+            self._uri = value
+        else:
+            raise ValueError('label must be a string')
+        print(self._uri)
 
     @property
     def label(self):
@@ -307,7 +321,7 @@ class WorkflowExecutionAccount(RDFResource):
         # opmw:overallStartTime
         graph.add((account, OPMW.overallStartTime, self._start_time))
         # opmw:hasEndTime
-        graph.add((account, OPMW.hasEndTime, self._end_time))
+        graph.add((account, OPMW.overallEndTime, self._end_time))
         # opmw:hasStatus
         graph.add((account, OPMW.hasStatus, self._status))
         # opmw:hasExecutionDiagram
@@ -323,15 +337,17 @@ class WorkflowExecutionAccount(RDFResource):
         if self._log_file:
             graph.add((account, OPMW.hasOriginalLogFile, self._log_file))
 
-        # data variables
-        for data_var in self._data_variables:
-            graph.add((account, OPMO.Account, data_var))
-        # parameter variables
-        for parameter in self._parameter_variables:
-            graph.add((account, OPMO.Account, parameter))
-        # steps
-        for step in self._steps:
-            graph.add((account, OPMO.Account, step))
+        # # data variables
+        # for data_var in self._data_variables:
+        #     graph.add((account, OPMO.Account, data_var))
+        # # parameter variables
+        # for parameter in self._parameter_variables:
+        #     graph.add((account, OPMO.Account, parameter))
+        # # steps
+        # for step in self._steps:
+        #     graph.add((account, OPMO.Account, step))
+        for item in self._is_account_of:
+            graph.add((account, OPMW.Account, item))
 
         return graph
 
@@ -382,7 +398,6 @@ class WorkflowExecutionAccount(RDFResource):
                 UNION
                 { ?o ?p %s }
             }''' % (account_uri, account_uri)
-
         try:
             query_results = graph.query(query)
             for attrib_type, uri in query_results:
@@ -394,6 +409,7 @@ class WorkflowExecutionAccount(RDFResource):
                             handler = _attribs[attrib_type]
                             handler(account, uri)
             account.printobject()
+            return account
         except Exception:
             raise
 

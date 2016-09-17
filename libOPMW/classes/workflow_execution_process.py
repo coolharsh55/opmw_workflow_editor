@@ -70,6 +70,20 @@ class WorkflowExecutionProcess(RDFResource):
         self._template_process = None
 
     @property
+    def uri(self):
+        return self._uri
+
+    @uri.setter
+    def uri(self, value):
+        if isinstance(value, str):
+            self._uri = URIRef(value)
+        elif isinstance(value, URIRef):
+            self._uri = value
+        else:
+            raise ValueError('label must be a string')
+        print(self._uri)
+
+    @property
     def label(self):
         return self._label
 
