@@ -1,0 +1,248 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+        <style>
+        .image-container {
+            overflow: hidden;
+            height: 400px;
+        }
+        img {
+            height: 750px;
+        }
+        </style>
+    </head>
+    <body>
+    <div class='ui container'>
+        <div class='ui segment'>
+        <h1>Workflow Template - {{ template.label }}</h1>
+        <div class="image-container">
+            <img src="/export/images/{{ template.label }}.png">
+        </div>
+        <table class="ui compact striped table">
+            <tbody>
+                <tr><td>label</td><td>{{ template.label }}</td></tr>
+                <tr>
+                    <td>contributors</td>
+                    <td>
+                    {% for contributor in template.contributors %}
+                        {{ contributor }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr><td>modified</td><td>{{ template.modified }}</td></tr>
+                <tr><td>version</td><td>{{ template.version }}</td></tr>
+                <tr><td>documentation</td><td>{{ template.documentation }}</td></tr>
+                <tr><td>workflow_system</td><td>{{ template.workflow_system }}</td></tr>
+                <tr><td>template_diagram</td><td>{{ template.template_diagram }}</td></tr>
+                <tr><td>native_system_template</td><td>{{ template.native_system_template }}</td></tr>
+                <tr><td>parameter variables</td>
+                    <td>
+                    {% for var in template.parameter_variables %}
+                    {{ var }}<br/>
+                    {%endfor%}
+                    </td>
+                </tr>
+                <tr><td>data variables</td>
+                    <td>
+                    {% for var in template.data_variables %}
+                    {{ var }}<br/>
+                    {%endfor%}
+                    </td>
+                </tr>
+                <tr><td>steps / processes</td>
+                    <td>
+                    {% for var in template.steps %}
+                    {{ var }}<br/>
+                    {%endfor%}
+                    </td>
+                </tr>
+                <tr><td>execution accounts</td>
+                    <td>
+                    {% for var in template.execution_accounts %}
+                    {{ var }}<br/>
+                    {%endfor%}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class='ui segment'>
+        <h2>Parameters</h2>
+        {% for var in parameters %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>dimensionality</td><td>{{ var.dimensionality }}</td></tr>
+                <tr>
+                    <td>used by</td><td>
+                    {% for step in var.used_by %}
+                        {{ step }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>execution artifacts</td><td>
+                    {% for artifact in var.execution_artifacts %}
+                        {{ artifact }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Data Variables</h2>
+        {% for var in variables %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>dimensionality</td><td>{{ var.dimensionality }}</td></tr>
+                <tr><td>generated_by</td><td>{{ var.generated_by }}</td></tr>
+                <tr>
+                    <td>used by</td><td>
+                    {% for step in var.used_by %}
+                        {{ step }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>execution artifacts</td><td>
+                    {% for artifact in var.execution_artifacts %}
+                        {{ artifact }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Steps / Processes</h2>
+        {% for var in steps %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr>
+                    <td>uses</td><td>
+                    {% for variable in var.uses %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>generates</td><td>
+                    {% for variable in var.generates %}
+                        {{ generates }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        </div>
+        <hr/>
+
+        <div class='ui segment'>
+        <h2>Execution Accounts</h2>
+        {% for var in accounts %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>status</td><td>{{ var.status }}</td></tr>
+                <tr><td>workflow_system</td><td>{{ var.workflow_system }}</td></tr>
+                <tr><td>start time</td><td>{{ var.start_time }}</td></tr>
+                <tr><td>end time</td><td>{{ var.end_time }}</td></tr>
+                <tr><td>diagram</td><td>{{ var.diagram }}</td></tr>
+                <tr><td>log file</td><td>{{ var.log_file }}</td></tr>
+                <tr>
+                    <td>is execution account of</td><td>
+                    {% for variable in var.is_account_of %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Execution Artifacts</h2>
+        {% for var in artifacts %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>account</td><td>{{ var.account }}</td></tr>
+                <tr><td>generated_by</td><td>{{ var.generated_by }}</td></tr>
+                <tr><td>filename</td><td>{{ var.filename }}</td></tr>
+                <tr><td>location</td><td>{{ var.location }}</td></tr>
+                <tr><td>size</td><td>{{ var.size }}</td></tr>
+                <tr>
+                    <td>is used by</td><td>
+                    {% for variable in var.used_by %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Execution Processes</h2>
+        {% for var in processes %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>account</td><td>{{ var.account }}</td></tr>
+                <tr><td>controller</td><td>{{ var.controller }}</td></tr>
+                <tr><td>component</td><td>{{ var.component }}</td></tr>
+                <tr>
+                    <td>used</td><td>
+                    {% if var.used %}
+                        {% for variable in var.used %}
+                            {{ variable }}<br/>
+                        {% endfor %}
+                    {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>generated</td><td>
+                    {% if var.generated %}
+                        {% for variable in var.generated %}
+                            {{ variable }}<br/>
+                        {% endfor %}
+                    {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+    <!-- javascript -->
+    <!-- jQuery & jQuery UI -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <!-- semantic-ui -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+    </body>
+</html>

@@ -9,7 +9,7 @@ import json
 import os
 
 from flask import Flask, request
-from flask import render_template
+from flask import render_template, send_from_directory
 from flask.json import jsonify
 
 from libOPMW.export_rdf import append_graph
@@ -33,6 +33,78 @@ app = Flask(
 @app.route('/')
 def root():
     return render_template('index.html')
+
+
+@app.route('/export/<path:filename>')
+def exported_rdf(filename):
+    return send_from_directory('export', filename)
+
+
+@app.route('/execute/')
+def execute():
+
+    # FIXME
+    label = 'experiment_A'
+    if not check_template_exists(label):
+        return 'label does not exist', 404
+    return_val = get_template(label)
+    if return_val is None:
+        return 'error', 400
+    template_uri, data_vars, parameters, steps = return_val
+    try:
+        graph = get_graph()
+        template = opmw.WorkflowTemplate.parse_from_graph(graph, template_uri)
+        data_vars = [
+            opmw.DataVariable.parse_from_graph(graph, data_var_uri)
+            for data_var_uri, data_var_label in data_vars]
+        parameters = [
+            opmw.ParameterVariable.parse_from_graph(graph, param_uri)
+            for param_uri, param_label in parameters]
+        steps = [
+            opmw.WorkflowTemplateProcess.parse_from_graph(graph, step_uri)
+            for step_uri, step_label in steps]
+        data = {
+            'opmw:WorkflowTemplate': {
+                'uri': str(template.uri),
+                'label': str(template.label),
+                'contributors': [str(c) for c in template.contributors],
+                'modified': str(template.modified),
+                'version': str(template.version),
+                'documentation': str(template.documentation),
+                'workflow_system': str(template.workflow_system),
+                'native_system_template': str(template.native_system_template)
+            },
+            'opmw:DataVariable': [
+                {
+                    'uri': str(data_var.uri),
+                    'label': str(data_var.label),
+                    'dimensionality': str(data_var.dimensionality),
+                    'generated_by': str(data_var.generated_by)
+                } for data_var in data_vars
+            ],
+            'opmw:ParameterVariable': [
+                {
+                    'uri': str(parameter.uri),
+                    'label': str(parameter.label),
+                    'dimensionality': str(parameter.dimensionality),
+                } for parameter in parameters
+            ],
+            'opmw:WorkflowTemplateProcess': [
+                {
+                    'uri': str(step.uri),
+                    'label': str(step.label),
+                    'uses': [str(c) for c in step.uses]
+                } for step in steps
+            ]
+        }
+        with open('/tmp/temp.json', 'w') as fp:
+            json.dump(data, fp)
+    except Exception:
+        raise
+    finally:
+        graph.close()
+
+    return render_template('execute/execute.html', template=data)
 
 
 # NEW WORKFLOW
@@ -107,7 +179,7 @@ def execute_workflow(label):
             opmw.WorkflowTemplateProcess.parse_from_graph(graph, step_uri)
             for step_uri, step_label in steps]
         data = {
-            'template': {
+            'opmw:WorkflowTemplate': {
                 'uri': str(template.uri),
                 'label': str(template.label),
                 'contributors': [str(c) for c in template.contributors],
@@ -117,7 +189,7 @@ def execute_workflow(label):
                 'workflow_system': str(template.workflow_system),
                 'native_system_template': str(template.native_system_template)
             },
-            'data_variables': [
+            'opmw:DataVariable': [
                 {
                     'uri': str(data_var.uri),
                     'label': str(data_var.label),
@@ -125,14 +197,14 @@ def execute_workflow(label):
                     'generated_by': str(data_var.generated_by)
                 } for data_var in data_vars
             ],
-            'parameters': [
+            'opmw:ParameterVariable': [
                 {
                     'uri': str(parameter.uri),
                     'label': str(parameter.label),
                     'dimensionality': str(parameter.dimensionality),
                 } for parameter in parameters
             ],
-            'steps': [
+            'opmw:WorkflowTemplateProcess': [
                 {
                     'uri': str(step.uri),
                     'label': str(step.label),
@@ -160,21 +232,231 @@ def publish_workflowexecution():
 
     if request.form:
         data = json.loads(request.form.getlist('data')[0])
-        template = data['account']
-        account = data['objects'][template]
-        filename = account['rdfs:label'] + '.png'
-        file = request.files['image']
-        file.save(os.path.join('./export/images', filename))
-        print('./export/images/created {}'.format(filename))
+        data_account = data['execution_account']
+        account = opmw.WorkflowExecutionAccount()
+        account.label = data_account["properties"]["rdfs:label"]
+        account.uri = "lvh.me/execution-account/" + account.label
+        account.template =\
+            data_account["properties"]["opmw:correspondsToTemplate"]
+        account.status = data_account["properties"]["opmw:hasStatus"]
+        account.start_time =\
+            data_account["properties"]["opmw:overallStartTime"]
+        account.end_time = account.start_time
+        account.workflow_system = "lvh.me/workflow-system/workflow-editor/"
+        for extra_property in data_account["properties"]["extra"]:
+            pass
+        append_graph(account.graph)
+        serialize_graph(account.graph, account.label)
 
-        for item in data['objects'].values():
-            item_type = item['type']
-            graph = type_mappings[item_type](item)
-            append_graph(graph)
-            serialize_graph(graph, item['rdfs:label'])
+        # store by id
+        data_ids = {data_account["_id"]: account.uri}
+
+        for data_artifact in data['artifacts']:
+            artifact = opmw.WorkflowExecutionArtifact()
+            artifact.label = data_artifact["properties"]["rdfs:label"]
+            artifact.uri = "lvh.me/execution-artifact/" + artifact.label
+            artifact.template_artifact =\
+                data_artifact["properties"][
+                    "opmw:correspondsToTemplateArtifact"]
+            artifact.account = account.uri
+            artifact.filename = data_artifact["properties"]["opmw:hasFileName"]
+            artifact.location = data_artifact["properties"]["opmw:hasLocation"]
+            artifact.size = data_artifact["properties"]["opmw:hasSize"]
+            append_graph(artifact.graph)
+            serialize_graph(artifact.graph, artifact.label)
+            data_ids[data_artifact["_id"]] = artifact
+
+        for data_process in data['processes']:
+            process = opmw.WorkflowExecutionProcess()
+            process.label = data_process["properties"]["rdfs:label"]
+            process.uri = "lvh.me/execution-process/" + process.label
+            process.account = account.uri
+            process.template_process = \
+                data_process["properties"]["opmw:correspondsToTemplateProcess"]
+            process.used = [
+                data_ids[x].uri
+                for x in data_process["properties"]["opmw:used"]]
+            if data_process["properties"]["opmw:hasExecutableComponents"]:
+                process.component =\
+                    data_process[
+                        "properties"]["opmw:hasExecutableComponents"][0]
+            append_graph(process.graph)
+            serialize_graph(process.graph, process.label)
+            data_ids[data_process["_id"]] = process
+
+        for data_artifact in data['artifacts']:
+            if "opmw:wasGeneratedBy" in data_artifact["properties"]:
+                artifact = data_ids[data_artifact["_id"]]
+                if data_artifact["properties"]["opmw:wasGeneratedBy"] is None:
+                    continue
+                artifact.generated_by =\
+                    data_ids[data_artifact["properties"][
+                        "opmw:wasGeneratedBy"]].uri
+                append_graph(artifact.graph)
+                serialize_graph(artifact.graph, artifact.label)
     else:
         return 'no data received', 400
     return 'received data', 200
+
+
+# display published results
+@app.route('/published/template/<label>/')
+def published_template(label):
+    graph = get_graph()
+    template_uri = list(graph.query('''
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        prefix opmw: <http://www.opmw.org/ontology/>
+
+        SELECT ?s
+        WHERE {
+          ?s a opmw:WorkflowTemplate .
+          ?s rdfs:label "%s"
+        }''' % label))
+    if not template_uri:
+        return 'no template found', 400
+
+    template_uri = template_uri[0][0]
+    template = opmw.WorkflowTemplate.parse_from_graph(graph, template_uri)
+    if not template:
+        return 'no template found in graph', 400
+    data_template = {
+        'label': template.label,
+        'contributors': [str(c) for c in template.contributors],
+        'modified': template.modified,
+        'version': template.version,
+        'documentation': template.documentation,
+        'workflow_system': template.workflow_system,
+        'template_diagram': template.template_diagram,
+        'native_system_template': template.native_system_template,
+        'data_variables': template.data_variables,
+        'parameter_variables': template.parameter_variables,
+        'steps': template.steps,
+        'execution_accounts': template.execution_accounts,
+    }
+    for key, value in data_template.items():
+        if not value:
+            data_template[key] = 'N/A'
+    data_steps = []
+    data_variables = []
+    data_parameters = []
+    data_accounts = []
+    data_artifacts = []
+    data_processes = []
+
+    artifacts_uris = set()
+    processes_uris = set()
+
+    for step_uri in template.steps:
+        step = opmw.WorkflowTemplateProcess.parse_from_graph(graph, step_uri)
+        if not step:
+            return 'error parsing step %s' % step_uri, 400
+        data_step = {
+            'label': step.label,
+            'uses': step.uses,
+            'generates': step.generates,
+            'execution_processes': step.execution_processes
+        }
+        for uri in step.execution_processes:
+            processes_uris.add(uri)
+        data_steps.append(data_step)
+    for data_var_uri in template.data_variables:
+        data_var = opmw.DataVariable.parse_from_graph(graph, data_var_uri)
+        if not data_var:
+            return 'error parsing data variable %s' % data_var_uri, 400
+        var = {
+            'label': data_var.label,
+            'dimensionality': data_var.dimensionality,
+            'generated_by': data_var.generated_by,
+            'used_by': data_var.used_by,
+            'execution_artifacts': data_var.execution_artifacts
+        }
+        for uri in data_var.execution_artifacts:
+            artifacts_uris.add(uri)
+        data_variables.append(var)
+    for param_var_uri in template.parameter_variables:
+        param_var = opmw.ParameterVariable.parse_from_graph(
+            graph, param_var_uri)
+        if not param_var:
+            return 'error parsing parameter variable %s' % param_var_uri, 400
+        var = {
+            'label': param_var.label,
+            'dimensionality': param_var.dimensionality,
+            'used_by': param_var.used_by,
+            'execution_artifacts': param_var.execution_artifacts
+        }
+        for uri in param_var.execution_artifacts:
+            artifacts_uris.add(uri)
+        data_parameters.append(var)
+
+    for account_uri in template.execution_accounts:
+        account = opmw.WorkflowExecutionAccount.parse_from_graph(
+            graph, account_uri)
+        if not account:
+            return 'error parsing account %s' % account_uri, 400
+        acc = {
+            'label': account.label,
+            'workflow_system': account.workflow_system,
+            'start_time': account.start_time,
+            'end_time': account.end_time,
+            'diagram': account.diagram,
+            'status': account.status,
+            'log_file': account.log_file,
+            'is_account_of': account.is_account_of
+        }
+        data_accounts.append(acc)
+
+    for artifact_uri in artifacts_uris:
+        artifact = opmw.WorkflowExecutionArtifact.parse_from_graph(
+            graph, artifact_uri)
+        if not artifact:
+            return 'error parsing artifact %s' % artifact_uri, 400
+        var = {
+            'label': artifact.label,
+            'account': artifact.account,
+            'generated_by': artifact.generated_by,
+            'filename': artifact.filename,
+            'location': artifact.location,
+            'size': artifact.size,
+            'used_by': artifact.used_by
+        }
+        data_artifacts.append(var)
+
+    for process_uri in processes_uris:
+        process = opmw.WorkflowExecutionProcess.parse_from_graph(
+            graph, process_uri)
+        if not process:
+            return 'error parsing process %s' % process_uri, 400
+        var = {
+            'label': process.label,
+            'account': process.account,
+            'controller': process.controller,
+            'component': process.component,
+            'generated': process.generates,
+            'used': process.used
+        }
+        data_processes.append(var)
+    print(processes_uris)
+    data = {
+        'template': data_template,
+        'parameters': data_parameters,
+        'variables': data_variables,
+        'steps': data_steps,
+        'accounts': data_accounts,
+        'artifacts': data_artifacts,
+        'processes': data_processes
+    }
+
+    return render_template(
+        '/published_template.html',
+        template=data_template,
+        parameters=data_parameters,
+        variables=data_variables,
+        steps=data_steps,
+        accounts=data_accounts,
+        artifacts=data_artifacts,
+        processes=data_processes)
+    return jsonify(data)
+
 
 # SPARQL
 
