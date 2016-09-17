@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--
+    execute.html
+ -->
+
+<head>
+    <!-- meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>OPMW Workflow Execution</title>
+    <meta name="description" content="a workflow editor based on the OPMW ontology">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- css -->
+    <!-- jQuery -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+    <!-- semantic-ui -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+    <!-- Joint.js for diagramming -->
+    <link rel="stylesheet" type="text/css" href="http://www.jointjs.com/cms/downloads/joint.min.css">
+    <!-- local files -->
+    <link rel="stylesheet" type="text/css" href="/execute/execute.css">
+    <link rel="stylesheet" type="text/css" href="/jquery-ui-timepicker-addon.css">
+
+    <!-- javascript -->
+        <!-- jQuery & jQuery UI -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <!-- semantic-ui -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+    <!-- JointJS with dependencies - lodash, backbone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="http://www.jointjs.com/js/vendor/backbone/backbone-min.js"></script>
+    <script src="http://www.jointjs.com/cms/downloads/joint.min.js"></script>
+    <script src="/graphlib.core.js"></script>
+    <script src="/dagre.core.js"></script>
+    <script src="/rappid.min.js"></script>
+    <!-- lodash -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.js"></script>
+    <!-- canvg -->
+    <script type="text/javascript" src="/rgbcolor.js"></script>
+    <script type="text/javascript" src="/StackBlur.js"></script>
+    <script type="text/javascript" src="/canvg.js"></script>
+    <!-- datetimepicker addon -->
+    <script type="text/javascript" src="/jquery-ui-timepicker-addon.js"></script>
+</head>
+
+<body>
+    <div class="ui fixed top menu">
+        <a id='btn-open-template' class="item">open template</a>
+        <a id='btn-import' class="item" onclick="document.getElementById('input-import').click();">import experiment</a>
+        <input id='input-import' type="file" style="display: none;" id="input-file" name="file" enctype="multipart/form-data"/>
+        <a id='btn-export' class="item" href="" download="execute_workflow_data.json" onclick="serializer.export_data();">export experiment</a>
+        <a id='btn-publish' class="item">publish experiment</a>
+    </div>
+
+    <div class="ui grid" style="margin-top: 1px;">
+    <div class="row">
+        <div id='col-objects' class="four wide column">
+            <h2 class='header'>Execution Objects</h2>
+            <hr/>
+            <div class="ui container">
+                <h3>Execution Account</h3>
+                    <div id='sidebar-execution-account-label' class='sidebar-item-label-flagged'>label not set<span id='sidebar-execution-account-template-uri' class='sidebar-template-uri'></span></div>
+                <hr/>
+                <h3>Data Variables / Execution Artifacts</h3>
+                    <ul id='item-list-data' class="ui list">
+                    </ul>
+                <hr/>
+                <h3>Parameter Variables / Execution Artifacts</h3>
+                    <ul id='item-list-param' class="ui list">
+                    </ul>
+                <hr/>
+                <h3>Steps / Execution Processes</h3>
+                    <ul id='item-list-step' class="ui list">
+                    </ul>
+            </div>
+        </div>
+        <div id='col-form' class="four wide column">
+            <h2 class="header">Object properties</h2><hr/>
+            <div class='ui container'>
+                <button id='btn-save-form' class='ui left floated secondary tiny button'>save form</button>
+                <button id='btn-cancel-form' class='ui right floated secondary tiny button'>cancel form</button>
+                <br/><br/>
+            </div>
+            <hr/>
+            <div class='container'>
+                <form id='object-form' class="ui form"></form>
+                <hr/>
+                <h3>Additional properties</h3>
+                <button id='btn-add-extra-property' class='ui left floated secondary tiny button'>add</button>
+                <br/><br/>
+                <form id='object-form-extra-properties' class="ui form">
+                </form>
+            </div>
+        </div>
+        <div id='col-diagram' class="eight wide column">
+            <h2 class="header">Object diagram</h2><hr/>
+            <div id='object-diagram' class='container'>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- local files -->
+    <script type="text/javascript">
+        var template = {{ template|safe }};
+    </script>
+    <script type="text/javascript" src="/execute/execute.js"></script>
+    <script type="text/javascript" src="/execute/data.js"></script>
+    <script type="text/javascript" src="/topological_sort.js"></script>
+    <script type="text/javascript" src="/execute/diagram.js"></script>
+    <script type="text/javascript" src="/execute/form_maker.js"></script>
+    <script type="text/javascript" src="/execute/serializer.js"></script>
+    <script type="text/javascript" src="/execute/opmw_workflow_execution.js"></script>
+    <script type="text/javascript" src="/utils.js"></script>
+
+</body>
+
+</html>
