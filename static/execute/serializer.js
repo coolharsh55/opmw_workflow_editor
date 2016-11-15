@@ -144,29 +144,67 @@ var serializer = {
             }
         }
 
+        for (var i=0; i<execution_account["opmw:account"].length; i++) {
+            execution_account["opmw:account"][i] = experiment_data_by_id[execution_account["opmw:account"][i]];
+        }
+
         form_data = execution_account;
         form_schema = execution_account;
         form_template = template["opmw:WorkflowTemplate"];
         form_maker = make_form_for_execution_account;
         make_form_for_execution_account(execution_account);
+
+        draw_graph(make_diagram_data());
+
     },
 
     export_data: function() {
+        // var svg = paper.toSVG(function(svgString) {
+        //     console.log(svgString);
+        // });
         var data = serializer.serialize();
-        console.log("exported data", data);
+        data.diagram = graph.toJSON();
+        // console.log("exported data", data);
         var dataStr = "data:text/json;charset=utf-8," +
         encodeURIComponent(JSON.stringify(data));
         $('#btn-export').attr("href", dataStr);
     },
 
+    encode_as_img_and_link: function() {
+        var svg = document.getElementById('object-diagram').firstChild.outerHTML;
+        $('<canvas/>', { id: 'canvas', width: 700, height: 900}).appendTo('body');
+        console.log(svg);
+        canvg('canvas', svg);
+        var canvas = document.getElementById('canvas');
+        // http://stackoverflow.com/questions/19032406/convert-html5-canvas-into-file-to-be-uploaded
+        var blobBin = atob(canvas.toDataURL().split(',')[1]);
+        canvas.parentNode.removeChild(canvas);
+        var array = [];
+        for(var i = 0; i < blobBin.length; i++) {
+            array.push(blobBin.charCodeAt(i));
+        }
+        var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
+        return file;
+    },
+
     publish_data: function() {
-        var data = serializer.serialize();
-        console.log("published", data);
-        var formdata = new FormData();
-        // formdata.append("image", file);
-        formdata.append("data", JSON.stringify(data));
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "/publish/workflowexecution/", true);
-        xhttp.send(formdata);
+        paper.toPNG(function(dataURL) {
+            // var file = dataURL;
+            var blobBin = atob(dataURL.split(',')[1]);
+            var array = [];
+            for(var i = 0; i < blobBin.length; i++) {
+                array.push(blobBin.charCodeAt(i));
+            }
+            var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
+            var data = serializer.serialize();
+            // console.log("published", data);
+            var formdata = new FormData();
+            // formdata.append("image", file);
+            formdata.append("data", JSON.stringify(data));
+            formdata.append("image", file);
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/publish/workflowexecution/", true);
+            xhttp.send(formdata);
+        });
     }
 };

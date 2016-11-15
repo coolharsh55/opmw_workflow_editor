@@ -181,6 +181,9 @@ var save_form_for_execution_account = function() {
     div.append('<p>Execution Account properties have been validated and saved.</p>');
     form.prepend(div);
     form.addClass('success');
+
+    var data = make_diagram_data();
+    draw_graph(data);
 };
 
 var validate_form_for_execution_account = function() {

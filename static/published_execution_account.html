@@ -1,0 +1,89 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
+    <div class='ui container'>
+        <div class='ui segment'>
+        <h1>Workflow Execution Account - {{ account.label }}</h1>
+        {% if account.diagram %}
+        <div class="ui spaced image">
+            <img src="/export/images/{{ account.label }}.png">
+        </div>
+        {% endif %}
+        <table class="ui compact striped table">
+            <tbody>
+                <tr><td>label</td><td>{{ account.label }}</td></tr>
+                <tr><td>template</td><td><a href="{{ 'http://lvh.me:5000/published/template/' + account.template.split('/')[-1] + '/' }}">{{ account.template }}</a></td></tr>
+                <tr><td>workflow system</td><td>{{ account.workflow_system }}</td></tr>
+                <tr><td>start time</td><td>{{ account.start_time }}</td></tr>
+                <tr><td>end time</td><td>{{ account.end_time }}</td></tr>
+                <tr><td>status</td><td>{{ account.status }}</td></tr>
+                <tr><td>log file</td><td>{{ account.log_file }}</td></tr>
+                <tr><td>processes</td><td>
+                {% for process in account.processes %}
+                    <a href="{{ 'http://lvh.me:5000/published/execution-process/' + process.label + '/' }}">{{ process.label }}</a><br/>
+                {% endfor %}</td></tr>
+                <tr><td>artifacts</td><td>
+                {% for artifact in account.artifacts %}
+                    <a href="{{ 'http://lvh.me:5000/published/execution-artifact/' + artifact.label + '/' }}">{{ artifact.label }}</a><br/>
+                {% endfor %}</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class='ui segment'>
+        <h2>Execution Processes</h2>
+        {% for process in account.processes %}
+            <a href='{{ "http://lvh.me:5000/published/execution-process/" + process.label + "/" }}'><h3>{{ process.label }}</h3></a>
+            <table class='ui compact striped table'>
+                <tbody>
+                    <tr><td>label</td><td>{{ process.label }}</td></tr>
+                    <tr><td>controller</td><td>{{ process.controller }}</td></tr>
+                    <tr><td>component</td><td>{{ process.component }}</td></tr>
+                    <tr><td>generates</td><td>{{ process.generates }}</td></tr>
+                    <tr><td>template process</td><td><a href='{{ "http://lvh.me:5000/published/step/" + process.template_process.split("/")[-1] + "/" }}'>{{ process.template_process }}</a></td></tr>
+                    <tr><td>used</td><td>
+                        {% for var in process.used %}
+                            <a href='{{ "http://lvh.me:5000/published/execution-artifact/" + var.split("/")[-1] + "/" }}'>{{ var }}</a><br/>
+                        {% endfor %}
+                    </td></tr>
+                </tbody>
+            </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Execution Artifacts</h2>
+        {% for var in account.artifacts %}
+        <a href='{{ "http://lvh.me:5000/published/execution-artifact/" + var.label + "/" }}'><h3>{{ var.label }}</h3></a>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>generated_by</td><td>{{ var.generated_by }}</td></tr>
+                <tr><td>filename</td><td>{{ var.filename }}</td></tr>
+                <tr><td>location</td><td>{{ var.location }}</td></tr>
+                <tr><td>size</td><td>{{ var.size }}</td></tr>
+                <tr><td>template artifact</td><td>{{ var.template_artifact }}</td></tr>
+                <tr>
+                    <td>is used by</td><td>
+                    {% for variable in var.used_by %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+    </body>
+</html>

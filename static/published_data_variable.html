@@ -1,0 +1,93 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
+    <div class='ui container'>
+        <div class='ui segment'>
+        <h1>Data Variable - {{ data_variable.label }}</h1>
+        <table class="ui compact striped table">
+            <tbody>
+                <tr><td>label</td><td>{{ data_variable.label }}</td></tr>
+                <tr><td>template</td><td><a href='{{ "http://lvh.me:5000/published/template/" + data_variable.template.split('/')[-1] + "/" }}'>{{ data_variable.template }}</a></td></tr>
+                <tr><td>dimensionality</td><td>{{ data_variable.dimensionality }}</td></tr>
+                <tr>
+                    <td>used by</td><td>
+                    {% for step in data_variable.used_by %}
+                        <a href='{{ "http://lvh.me:5000/published/step/" + step.split('/')[-1] + "/" }}'>{{ step }}</a><br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>execution artifacts</td><td>
+                    {% for artifact in data_variable.execution_artifacts %}
+                        {{ artifact }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class='ui segment'>
+        <h2>Steps that use Data Variable {{ data_variable.label }}</h2>
+        {% for var in steps %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>URI</td><td><a href='{{ "http://lvh.me:5000/published/step/" + var.label + "/" }}'>{{ "http://lvh.me:5000/published/step/" + var.label + "/" }}</a></td></tr>
+                <tr>
+                    <td>uses</td><td>
+                    {% for variable in var.uses %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>generates</td><td>
+                    {% for variable in var.generates %}
+                        {{ generates }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+
+        <div class='ui segment'>
+        <h2>Execution Artifacts</h2>
+        {% for var in artifacts %}
+        <h3>{{ var.label }}</h3>
+        <table class='ui compact striped table'>
+            <tbody>
+                <tr><td>label</td><td>{{ var.label }}</td></tr>
+                <tr><td>account</td><td>{{ var.account }}</td></tr>
+                <tr><td>generated_by</td><td>{{ var.generated_by }}</td></tr>
+                <tr><td>filename</td><td>{{ var.filename }}</td></tr>
+                <tr><td>location</td><td>{{ var.location }}</td></tr>
+                <tr><td>size</td><td>{{ var.size }}</td></tr>
+                <tr>
+                    <td>is used by</td><td>
+                    {% for variable in var.used_by %}
+                        {{ variable }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        </div>
+    </div>
+    </body>
+</html>

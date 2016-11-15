@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>OPMW workflow editor</title>
+<meta name="description" content="a workflow editor based on the OPMW ontology">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- css -->
+<!-- jQuery -->
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<!-- semantic-ui -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+</head>
+
+<body>
+<div class="ui raised padded text container segment">
+    <div class="header">
+        <h1>Workflow Templates</h1>
+    </div>
+    <div id="list" class="ui relaxed divided list">
+    </div>
+</div>
+<!-- javascript -->
+<!-- jQuery & jQuery UI -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<!-- semantic-ui -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+<!-- sparql query -->
+<script type="text/javascript">
+    $.ajax({
+        url: "/sparql/query/run/",
+        type: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({ query: 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+            PREFIX opmw: <http://www.opmw.org/ontology/> \
+            SELECT ?x \
+            WHERE { \
+              ?x a opmw:WorkflowTemplate \
+            } '}),
+        success: function(data, status, jqXHR) {
+            console.log(data);
+            if (data.error) {
+                alert('request failed');
+                return;
+            }
+            data.results.forEach(function(item) {
+                var item_split = item[0].split('/');
+                $('#list').append("<div class='item'> \
+                    <div class='content'> \
+                    <a class='header' href='" + item[0] + "'>" + item_split[item_split.length-1] + "</a><div class='description'>" + item[0] + "</div></div></div>");
+            });
+        }
+    });
+</script>
+</body>
+</html>

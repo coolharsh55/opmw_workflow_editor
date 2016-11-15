@@ -111,16 +111,18 @@ def serialize_graph(graph, filename):
         print('created', filename)
 
 
-def graph_workflow_template(template):
+def graph_workflow_template(data):
+    template = data['template']
     graph = _graph_with_namespace()
     # add the workflow template using it's label as the identifier
-    n_template = this_project[template['rdfs:label']]
+    n_template = this_project[template['properties']['rdfs:label']]
     graph.add((n_template, RDF.type, opmw.WorkflowTemplate))
     graph.add((n_template, RDF.type, prov.Plan))
     # label
-    graph.add((n_template, RDFS.label, Literal(template['rdfs:label'])))
+    graph.add((
+        n_template, RDFS.label, Literal(template['properties']['rdfs:label'])))
     # contributors
-    for contributor in template['dcterms:contributor']:
+    for contributor in template['properties']['dcterms:contributors']:
         graph.add((
             n_template, dcterms.contributor,
             URIRef(
@@ -129,7 +131,7 @@ def graph_workflow_template(template):
     # documentation
     graph.add((
         n_template, opmw.hasDocumentation,
-        Literal(template['opmw:hasDocumentation'])))
+        Literal(template['properties']['opmw:hasDocumentation'])))
     # diagram
     graph.add((
         n_template, opmw.hasTemplateDiagram,
@@ -137,18 +139,18 @@ def graph_workflow_template(template):
     # created in
     graph.add((
         n_template, opmw.createdInWorkflowSystem,
-        URIRef(template['opmw:createdInWorkflowSystem'])))
+        URIRef(template['properties']['opmw:createdInWorkflowSystem'])))
     # native system template
-    graph.add((
-        n_template, opmw.hasNativeSystemTemplate,
-        URIRef(template['opmw:hasNativeSystemTemplate'])))
+    # graph.add((
+    #     n_template, opmw.hasNativeSystemTemplate, None))
     # links
-    for link_type, link_items in template['links'].items():
-        uri = opmw[link_type.split(':')[1]]
-        for link_item in link_items:
-            graph.add((
-                URIRef(this_project[link_item]),
-                uri, n_template))
+
+    # for link_type, link_items in template['links'].items():
+    #     uri = opmw[link_type.split(':')[1]]
+    #     for link_item in link_items:
+    #         graph.add((
+    #             URIRef(this_project[link_item]),
+    #             uri, n_template))
 
     return graph
 
@@ -169,12 +171,12 @@ def graph_parameter(parameter):
         n_parameter, opmw.isParameterOfTemplate,
         this_project[parameter['opmw:isParameterOfTemplate']]))
     # links
-    for link_type, link_items in parameter['links'].items():
-        uri = opmw[link_type.split(':')[1]]
-        for link_item in link_items:
-            graph.add((
-                URIRef(this_project[link_item]),
-                uri, n_parameter))
+    # for link_type, link_items in parameter['links'].items():
+    #     uri = opmw[link_type.split(':')[1]]
+    #     for link_item in link_items:
+    #         graph.add((
+    #             URIRef(this_project[link_item]),
+    #             uri, n_parameter))
 
     return graph
 
@@ -200,12 +202,12 @@ def graph_variable(variable):
             n_variable, opmw.isGeneratedBy,
             this_project[variable['opmw:isGeneratedBy']]))
     # links
-    for link_type, link_items in variable['links'].items():
-        uri = opmw[link_type.split(':')[1]]
-        for link_item in link_items:
-            graph.add((
-                URIRef(this_project[link_item]),
-                uri, n_variable))
+    # for link_type, link_items in variable['links'].items():
+    #     uri = opmw[link_type.split(':')[1]]
+    #     for link_item in link_items:
+    #         graph.add((
+    #             URIRef(this_project[link_item]),
+    #             uri, n_variable))
 
     return graph
 
@@ -227,12 +229,12 @@ def graph_step(step):
         n_step, opmw.isStepOfTemplate,
         this_project[step['opmw:isStepOfTemplate']]))
     # links
-    for link_type, link_items in step['links'].items():
-        uri = opmw[link_type.split(':')[1]]
-        for link_item in link_items:
-            graph.add((
-                URIRef(this_project[link_item]),
-                uri, n_step))
+    # for link_type, link_items in step['links'].items():
+    #     uri = opmw[link_type.split(':')[1]]
+    #     for link_item in link_items:
+    #         graph.add((
+    #             URIRef(this_project[link_item]),
+    #             uri, n_step))
 
     return graph
 

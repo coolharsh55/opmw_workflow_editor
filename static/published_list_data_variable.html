@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>OPMW workflow editor</title>
+<meta name="description" content="a workflow editor based on the OPMW ontology">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- css -->
+<!-- jQuery -->
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<!-- semantic-ui -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+</head>
+
+<body>
+<div class="ui raised padded text container segment">
+    <div class="header">
+        <h1>Workflow Data Variables</h1>
+    </div>
+    <div id="list" class="ui relaxed divided list">
+    </div>
+</div>
+<!-- javascript -->
+<!-- jQuery & jQuery UI -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<!-- semantic-ui -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+<!-- sparql query -->
+<script src="/published_list_script.js"></script>
+<!-- sparql query -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        sparql_query({
+            parameters: 2,
+            type: 'opmw:DataVariable',
+            relation: 'opmw:isVariableOfTemplate',
+            uri_link:'data-variable',
+        });
+    });
+</script>
+</body>
+</html>

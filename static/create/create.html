@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <!--
-    execute.html
+    create.html
  -->
 
 <head>
     <!-- meta -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>OPMW Workflow Execution</title>
+    <title>OPMW Workflow Creation</title>
     <meta name="description" content="a workflow editor based on the OPMW ontology">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- css -->
@@ -16,10 +16,12 @@
     <!-- semantic-ui -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
     <!-- Joint.js for diagramming -->
-    <link rel="stylesheet" type="text/css" href="/joint.css">
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/1.0.1/joint.min.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/1.0.1/joint.min.css" /> -->
     <!-- local files -->
-    <link rel="stylesheet" type="text/css" href="/execute/execute.css">
+    <link rel="stylesheet" type="text/css" href="/create/create.css">
     <link rel="stylesheet" type="text/css" href="/jquery-ui-timepicker-addon.css">
+    <link rel="stylesheet" type="text/css" href="/joint.css">
 
     <!-- javascript -->
         <!-- jQuery & jQuery UI -->
@@ -46,10 +48,13 @@
 
 <body>
     <div class="ui fixed top menu">
-        <a id='btn-open-template' class="item">open template</a>
+        <a id='btn-clear-template' class="item">clear template</a>
+        <a id='btn-add-data-var' class="item">add data var</a>
+        <a id='btn-add-param-var' class="item">add parameter var</a>
+        <a id='btn-add-step' class="item">add step var</a>
         <a id='btn-import' class="item" onclick="document.getElementById('input-import').click();">import experiment</a>
         <input id='input-import' type="file" style="display: none;" id="input-file" name="file" enctype="multipart/form-data"/>
-        <a id='btn-export' class="item" href="" download="execute_workflow_data.json" onclick="serializer.export_data();">export experiment</a>
+        <a id='btn-export' class="item" href="" download="create_workflow_data.json" onclick="serializer.export_data();">export experiment</a>
         <a id='btn-publish' class="item">publish experiment</a>
     </div>
 
@@ -59,8 +64,8 @@
             <h2 class='header'>Execution Objects</h2>
             <hr/>
             <div class="ui container">
-                <h3>Execution Account</h3>
-                    <div id='sidebar-execution-account-label' class='sidebar-item-label-flagged'>label not set<span id='sidebar-execution-account-template-uri' class='sidebar-template-uri'></span></div>
+                <h3>Template</h3>
+                    <div id='sidebar-template-label' class='sidebar-item-label-flagged'>label not set</div>
                 <hr/>
                 <h3>Data Variables / Execution Artifacts</h3>
                     <ul id='item-list-data' class="ui list">
@@ -102,16 +107,13 @@
     </div>
 
     <!-- local files -->
-    <script type="text/javascript">
-        var template = {{ template|safe }};
-    </script>
-    <script type="text/javascript" src="/execute/execute.js"></script>
-    <script type="text/javascript" src="/execute/data.js"></script>
+    <script type="text/javascript" src="/create/create.js"></script>
+    <script type="text/javascript" src="/create/data.js"></script>
     <script type="text/javascript" src="/topological_sort.js"></script>
-    <script type="text/javascript" src="/execute/diagram.js"></script>
-    <script type="text/javascript" src="/execute/form_maker.js"></script>
-    <script type="text/javascript" src="/execute/serializer.js"></script>
-    <script type="text/javascript" src="/execute/opmw_workflow_execution.js"></script>
+    <script type="text/javascript" src="/create/diagram.js"></script>
+    <script type="text/javascript" src="/create/form_maker.js"></script>
+    <script type="text/javascript" src="/create/serializer.js"></script>
+    <script type="text/javascript" src="/create/opmw_workflow_template.js"></script>
     <script type="text/javascript" src="/utils.js"></script>
 
 </body>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+        <style>
+        </style>
+    </head>
+    <body>
+    <div class='ui container'>
+        <div class='ui segment'>
+        <h1>Workflow Template Process - {{ step.label }}</h1>
+        <table class="ui compact striped table">
+            <tbody>
+                <tr><td>label</td><td>{{ step.label }}</td></tr>
+                <tr><td>template</td><td><a href='{{ "http://lvh.me:5000/published/template/" + step.template.split('/')[-1] + "/" }}'>{{ step.template }}</a></td></tr>
+                <tr>
+                    <td>uses</td><td>
+                    {% for var in step.uses %}
+                        {{ var }}<br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>generates</td><td>
+                    {% for var in step.generates %}
+                        <a href='{{ "http://lvh.me:5000/published/data-variable/" + var.split("/")[-1] + "/" }}'>{{ var }}</a><br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>execution processes</td><td>
+                    {% for var in step.execution_processes %}
+                        <a href='{{ "http://lvh.me:5000/published/execution-process/" + var.split('/')[-1] + "/" }}'>{{ var }}</a><br/>
+                    {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class='ui segment'>
+        <h2>Workflow Execution Processes</h2>
+        {% for process in processes %}
+            <a href='{{ "http://lvh.me:5000/published/step/" + process.label + "/" }}'><h3>{{ process.label }}</h3></a>
+            <table class='ui compact striped table'>
+                <tbody>
+                    <tr><td>label</td><td>{{ process.label }}</td></tr>
+                    <tr><td>account</td><td><a href='{{ "http://lvh.me:5000/published/execution-account/" + process.account.split("/")[-1] + "/" }}'>{{ process.account }}</a></td></tr>
+                    <tr><td>controller</td><td>{{ process.controller }}</td></tr>
+                    <tr><td>component</td><td>{{ process.component }}</td></tr>
+                    <tr><td>generates</td><td>{{ process.generates }}</td></tr>
+                    <tr><td>used</td><td>
+                        {% for var in process.used %}
+                            <a href='{{ "http://lvh.me:5000/published/execution-artifact/" + var.split("/")[-1] + "/" }}'>{{ var }}</a><br/>
+                        {% endfor %}
+                    </td></tr>
+                </tbody>
+            </table>
+        {% endfor %}
+        </div>
+    </div>
+    </body>
+</html>

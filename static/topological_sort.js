@@ -27,28 +27,30 @@
 var topological_sort = function(data) {
     var L = [];  // Empty list that will contain the sorted elements
     var S = [];  // Set of all nodes with no incoming edges
-    console.log('start');
+    console.log('start topological sort');
     // create S
     _.each(data, function(node, key) {
         if (node.incoming.length == 0) {
-            console.log("S.push " + node._id);
+            console.log("S.push " + node.id);
             S.push(node);
         } else {
-            console.log("iterated " + node._id);
+            console.log("iterated " + node.id);
         }
     });
     console.log("started with Set", S);
     // while S is non-empty do
-    for(var x=0; x<100; x++){
+
+    // for(var x=0; x<S.length; x++) {
+    while(true) {
         // remove a node n from S
         if (S.length == 0) {
             break;
         }
         var node_n = S.splice(0, 1)[0];
-        console.log("S.pop " + node_n._id);
+        console.log("S.pop " + node_n.id);
         // add n to tail of L
         L.push(node_n);
-        console.log("L.push " + node_n._id);
+        console.log("L.push " + node_n.id);
         // for each node m with an edge e from n to m do
         var node_n_outgoing = _.clone(node_n.outgoing);
         _.each(node_n_outgoing, function(node_m) {
@@ -57,13 +59,27 @@ var topological_sort = function(data) {
             //     return;
             // }
             node_m = data[node_m];
-            console.log("removing edge", node_n._id, node_m._id);
-            console.log(node_m.incoming.length, node_m.incoming);
-            remove_edge(node_n, node_m);
-            console.log(node_m.incoming.length, node_m.incoming);
+            // console.log("removing edge", node_n.id, node_m.id);
+            // console.log(node_m.incoming.length, node_m.incoming);
+
+            for (var i=0; i<node_n.outgoing.length; i++) {
+                if (node_n.outgoing[i] == node_m.id) {
+                    node_n.outgoing.splice(i, 1);
+                    i -= 1;
+                    break;
+                }
+            }
+            for (var i=0; i<node_m.incoming.length; i++) {
+                if (node_m.incoming[i] == node_n.id) {
+                    node_m.incoming.splice(i, 1);
+                    i -= 1;
+                    break;
+                }
+            }
+            // console.log(node_m.incoming.length, node_m.incoming);
             // if m has no other incoming edges then
             if (node_m.incoming.length == 0) {
-                console.log("S.push " + node_m._id);
+                console.log("S.push " + node_m.id);
                 if (!(_.includes(S, node_m))) {
                     S.push(node_m);
                 }
@@ -74,7 +90,7 @@ var topological_sort = function(data) {
     _.each(data, function(node) {
         if (node.incoming.length !=0 || node.outgoing.length !=0){
             // return error (graph has at least one cycle)
-            console.log('graph is not a DAG');
+            // console.log('graph is not a DAG');
             return;
         }
     });
@@ -82,25 +98,7 @@ var topological_sort = function(data) {
     // return L (a topologically sorted order)
     var l_sorted = [];
     _.each(L, function(node) {
-        l_sorted.push(node._id);
+        l_sorted.push(node.id);
     });
     return l_sorted;
-};
-
-var remove_edge = function(n, m) {
-    console.log("removed edge from " + n._id + " to " + m._id);
-    for (var i=0; i<n.outgoing.length; i++) {
-        if (n.outgoing[i] == m._id) {
-            n.outgoing.splice(i, 1);
-            i -= 1;
-            break;
-        }
-    }
-    for (var i=0; i<m.incoming.length; i++) {
-        if (m.incoming[i] == n._id) {
-            m.incoming.splice(i, 1);
-            i -= 1;
-            break;
-        }
-    }
 };

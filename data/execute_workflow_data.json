@@ -1,0 +1,236 @@
+{
+  "template": {
+    "opmw:WorkflowTemplate": {
+      "uri": "http://lvh.me/directed-study/harsh/experiment_A",
+      "native_system_template": "",
+      "workflow_system": "",
+      "modified": "None",
+      "version": "None",
+      "documentation": "",
+      "label": "experiment_A",
+      "contributors": [
+        "http://lvh.me/directed-study/harsh/people/Harshvardhan-Pandit"
+      ]
+    },
+    "opmw:DataVariable": [
+      {
+        "uri": "http://lvh.me/directed-study/harsh/data_var_A",
+        "dimensionality": "1",
+        "label": "data_var_A",
+        "generated_by": "None"
+      },
+      {
+        "uri": "http://lvh.me/directed-study/harsh/M1_op",
+        "dimensionality": "1",
+        "label": "M1_op",
+        "generated_by": "http://lvh.me/directed-study/harsh/step_M1"
+      },
+      {
+        "uri": "http://lvh.me/directed-study/harsh/M2_op",
+        "dimensionality": "1",
+        "label": "M2_op",
+        "generated_by": "http://lvh.me/directed-study/harsh/step_M2"
+      }
+    ],
+    "opmw:ParameterVariable": [
+      {
+        "uri": "http://lvh.me/directed-study/harsh/param_var_A",
+        "dimensionality": "1",
+        "label": "param_var_A"
+      }
+    ],
+    "opmw:WorkflowTemplateProcess": [
+      {
+        "uri": "http://lvh.me/directed-study/harsh/step_M1",
+        "uses": [
+          "http://lvh.me/directed-study/harsh/param_var_A",
+          "http://lvh.me/directed-study/harsh/data_var_A"
+        ],
+        "label": "step_M1"
+      },
+      {
+        "uri": "http://lvh.me/directed-study/harsh/step_M2",
+        "uses": [
+          "http://lvh.me/directed-study/harsh/data_var_A",
+          "http://lvh.me/directed-study/harsh/param_var_A",
+          "http://lvh.me/directed-study/harsh/M1_op"
+        ],
+        "label": "step_M2"
+      }
+    ]
+  },
+  "execution_account": {
+    "_id": "_08af9ficz",
+    "_type": "ExecutionAccount",
+    "_status": {
+      "diagram": null,
+      "validated": true
+    },
+    "properties": {
+      "rdfs:label": "EXP_160913",
+      "opmw:correspondsToTemplate": "http://lvh.me/directed-study/harsh/experiment_A",
+      "opmw:hasStatus": true,
+      "opmw:overallStartTime": "09/13/2016 08:00",
+      "opmw:overallEndTime": "09/13/2016 20:00",
+      "extra": [
+
+      ]
+    },
+    "opmw:account": [
+      "_xnighn4xl",
+      "_r80zlda7x",
+      "_w22kizhdc",
+      "_0ebhi6mpo",
+      "_zg2iaolyb",
+      "_711kmfuva"
+    ]
+  },
+  "artifacts": [
+    {
+      "_id": "_xnighn4xl",
+      "_type": "ExecutionArtifact",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_param_a",
+        "opmw:correspondsToTemplateArtifact": "http://lvh.me/directed-study/harsh/param_var_A",
+        "opmw:hasFileName": "param_a_160913.txt",
+        "opmw:hasValue": "1",
+        "opmw:hasLocation": "lvh.me:5000/export/param/param_a_160913.txt",
+        "opmw:hasSize": "1",
+        "extra": [
+
+        ]
+      },
+      "opmw:used": [
+        "_zg2iaolyb",
+        "_711kmfuva"
+      ]
+    },
+    {
+      "_id": "_r80zlda7x",
+      "_type": "ExecutionArtifact",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_data_var_a",
+        "opmw:correspondsToTemplateArtifact": "http://lvh.me/directed-study/harsh/data_var_A",
+        "opmw:hasFileName": "data_a_160913.txt",
+        "opmw:hasValue": "0",
+        "opmw:hasLocation": "lvh.me:5000/export/data/data_a_160913.txt",
+        "opmw:hasSize": "1",
+        "opmw:wasGeneratedBy": null,
+        "extra": [
+
+        ]
+      },
+      "opmw:used": [
+        "_zg2iaolyb",
+        "_711kmfuva"
+      ]
+    },
+    {
+      "_id": "_w22kizhdc",
+      "_type": "ExecutionArtifact",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_op_m1",
+        "opmw:correspondsToTemplateArtifact": "http://lvh.me/directed-study/harsh/M1_op",
+        "opmw:hasFileName": "data_m1_160913.txt",
+        "opmw:hasValue": "1",
+        "opmw:hasLocation": "lvh.me:5000/export/data/data_m1_160913.txt",
+        "opmw:hasSize": "1",
+        "opmw:wasGeneratedBy": "_zg2iaolyb",
+        "extra": [
+
+        ]
+      },
+      "opmw:used": [
+        "_711kmfuva"
+      ]
+    },
+    {
+      "_id": "_0ebhi6mpo",
+      "_type": "ExecutionArtifact",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_op_m2",
+        "opmw:correspondsToTemplateArtifact": "http://lvh.me/directed-study/harsh/M2_op",
+        "opmw:hasFileName": "data_m2_160913.txt",
+        "opmw:hasValue": "1",
+        "opmw:hasLocation": "lvh.me:5000/export/data/data_m2_160913.txt",
+        "opmw:hasSize": "1",
+        "opmw:wasGeneratedBy": "_711kmfuva",
+        "extra": [
+
+        ]
+      },
+      "opmw:used": [
+
+      ]
+    }
+  ],
+  "processes": [
+    {
+      "_id": "_zg2iaolyb",
+      "_type": "ExecutionProcess",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_step_m1",
+        "opmw:correspondsToTemplateProcess": "http://lvh.me/directed-study/harsh/step_M1",
+        "opmw:hasExecutableComponents": [
+          "160913_step_m1.sh"
+        ],
+        "opmw:used": [
+          "_xnighn4xl",
+          "_r80zlda7x"
+        ],
+        "extra": [
+
+        ]
+      },
+      "opmw:wasGeneratedBy": [
+        "_w22kizhdc"
+      ]
+    },
+    {
+      "_id": "_711kmfuva",
+      "_type": "ExecutionProcess",
+      "_status": {
+        "diagram": null,
+        "validated": true
+      },
+      "properties": {
+        "rdfs:label": "160913_step_m2",
+        "opmw:correspondsToTemplateProcess": "http://lvh.me/directed-study/harsh/step_M2",
+        "opmw:hasExecutableComponents": [
+          "160913_step_m2.sh"
+        ],
+        "opmw:used": [
+          "_r80zlda7x",
+          "_xnighn4xl",
+          "_w22kizhdc"
+        ],
+        "extra": [
+
+        ]
+      },
+      "opmw:wasGeneratedBy": [
+        "_0ebhi6mpo"
+      ]
+    }
+  ]
+}
