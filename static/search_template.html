@@ -1,0 +1,197 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="/tachyons.min.css">
+        <!-- semantic-ui -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.js"></script>
+    </head>
+    <body>
+        <div class='w-80 tc center'>
+            <h1 class='f1 tc center'>Task 1: Search Template</h1>
+            <div class="pa2 center">
+                <p class="f4">Enter string for label</p>
+                <input class="input w-50 center" id="input-label" type="text">
+            </div>
+            <div class="pa2">
+                <p class="f4">Contributor</p>
+                <select class="w-50 ui search multiple selection dropdown" multiple="" id="contributors" name="contributors">
+                    {% for contributor in contributors %}
+                    <option value="{{ contributor }}">{{ contributor.split('/')[-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pa2">
+                <p class="f4"><input id="diagram" type="checkbox" checked="true" name="diagram" value="diagram"> Has Diagram</p>
+            </div>
+            <div class="pa2">
+                <p class="f4">Has Parameters</p>
+                <select id="parameters" name="parameters" multiple="" class="w-50 ui search multiple selection dropdown">
+                    {% for var in parameters %}
+                    <option value="{{ var }}">{{ var.split('/')[-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pa2">
+                <p class="f4">Has Data Variables</p>
+                <select id="data-variables" name="data-variables" multiple="" class="w-50 ui search multiple selection dropdown">
+                    {% for var in data_variables %}
+                    <option value="{{ var }}">{{ var.split('/')[-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pa2">
+                <p class="f4">Has Steps / Processes</p>
+                <select id="steps" name="steps" multiple="" class="w-50 ui search multiple selection dropdown">
+                    {% for var in steps %}
+                    <option value="{{ var }}">{{ var.split('/')[-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pa2">
+                <p class="f4">Has Execution Accounts</p>
+                <select id="accounts" name="parameters" multiple="" class="w-50 ui search multiple selection dropdown">
+                    {% for var in accounts %}
+                    <option value="{{ var }}">{{ var.split('/')[-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pa2">
+                <button id="submit">Search</button>
+            </div>
+            <div class="ph2 pv4 mt4 bt">
+                <h3 class="f2">Results</h3>
+                <div id="results" class="ph2">
+                </div>
+            </div>
+        </div>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#contributors').dropdown();
+        $('#parameters').dropdown();
+        $('#data-variables').dropdown();
+        $('#steps').dropdown();
+        $('#accounts').dropdown();
+    });
+    $('#submit').click(function(){
+        $('#results').empty();
+        var search_parameters = {};
+
+        var label = $('#input-label').val();
+
+        var contributors = $('#contributors').parent().dropdown('get value');
+        var diagram = $('#diagram').prop('checked');
+        var parameters = $('#parameters').parent().dropdown('get value');
+        var data_variables = $('#data-variables').parent().dropdown('get value');
+        var steps = $('#steps').parent().dropdown('get value');
+        var accounts = $('#accounts').parent().dropdown('get value');
+
+        console.log(label);
+        console.log(contributors);
+        console.log(diagram);
+        console.log(parameters);
+        console.log(data_variables);
+        console.log(steps);
+        console.log(accounts);
+
+        var query_list = [];
+
+        if (label.length > 0) {
+            search_parameters.label = label;
+            query_list.push("\
+                ?template rdfs:label ?label .\
+                FILTER regex(str(?label), \".*" + label + ".*\", \"i\") .");
+        }
+        if (contributors != null && contributors.length > 0) {
+            search_parameters.contributors = contributors;
+            contributors.forEach(function(contributor) {
+                query_list.push("\
+                    ?template <http://purl.org/dc/terms/contributor> <" + contributor + "> .");
+            });
+        }
+        if (diagram) {
+            search_parameters.diagram = diagram;
+            query_list.push("\
+                FILTER EXISTS { \
+                    ?template opmw:hasTemplateDiagram ?diagram .\
+                } .");
+        }
+        if (parameters != null && parameters.length > 0) {
+            search_parameters.parameters = parameters;
+            parameters.forEach(function(parameter) {
+                query_list.push("\
+                    <" + parameter + "> opmw:isParameterOfTemplate ?template .");
+            });
+        }
+        if (data_variables != null && data_variables.length > 0) {
+            search_parameters.data_variables = data_variables;
+            data_variables.forEach(function(data_variable) {
+                query_list.push("\
+                    <" + data_variable + "> opmw:isVariableOfTemplate ?template .");
+            });
+        }
+        if (steps != null && steps.length > 0) {
+            search_parameters.steps = steps;
+            steps.forEach(function(step) {
+                query_list.push("\
+                    <" + step + "> opmw:isStepOfTemplate ?template .");
+            });
+        }
+        if (accounts != null && accounts.length > 0) {
+            search_parameters.accounts = accounts;
+            accounts.forEach(function(account) {
+                query_list.push("\
+                    <" + account + "> opmo:account ?template .");
+            });
+        }
+        console.log(search_parameters);
+        if (Object.keys(search_parameters).length <= 1) {
+            alert('Please enter parameters for searching templates');
+            return;
+        } else {
+            console.log(query_list.reduce(function(query, item) {
+                return query + item;
+            }));
+        }
+        var query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+            PREFIX opmw: <http://www.opmw.org/ontology/> \
+            PREFIX opmo: <http://openprovenance.org/model/opmo#> \
+            SELECT ?template \
+            WHERE { \
+              ?template a opmw:WorkflowTemplate ." + query_list.reduce(function(query, item) {
+                return query + item;
+            }) + "\
+          }";
+        $.ajax({
+            url: "/sparql/query/run/",
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({ query: query}),
+            success: function(data, status, jqXHR) {
+                if (data.error) {
+                    console.log(data.error_message);
+                    return;
+                }
+                data.results = data.results.map(function(item) {
+                    return item[0];
+                });
+                console.log(data.results);
+                data.results.forEach(function(template) {
+                    let template_label = template.split('/');
+                    template_label = template_label[template_label.length - 1];
+                    $('#results').append("<p class='f3'><a href='http://lvh.me:5000/published/template/" + template_label + "/'>" + template_label + "</p>");
+                });
+            }
+        });
+    });
+    </script>
+    </body>
+</html>

@@ -23,11 +23,15 @@ from libOPMW.export_rdf import get_template, get_graph
 
 from libOPMW import classes as opmw
 
+from help_views import help_views
+
 # set the project root directory as the static folder, you can set others.
 app = Flask(
     __name__,
     template_folder='static'
 )
+
+app.register_blueprint(help_views)
 
 
 @app.route('/')
@@ -904,6 +908,70 @@ def published_list(item):
         return render_template('/published_list_execution_process.html')
 
     return 'item not supported', 400
+
+
+@app.route('/search/template/')
+def search():
+    graph = get_graph()
+    contributors = [
+        c[0] for c in
+        graph.query('''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            PREFIX opmo: <http://openprovenance.org/model/opmo#>
+            SELECT ?z
+            WHERE {
+              ?x a opmw:WorkflowTemplate .
+              ?x <http://purl.org/dc/terms/contributor> ?z
+            }''')]
+    parameters = [
+        p[0] for p in
+        graph.query('''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            PREFIX opmo: <http://openprovenance.org/model/opmo#>
+            SELECT ?z
+            WHERE {
+              ?x a opmw:WorkflowTemplate .
+              ?z opmw:isParameterOfTemplate ?x
+            }''')]
+    data_variables = [
+        d[0] for d in
+        graph.query('''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            PREFIX opmo: <http://openprovenance.org/model/opmo#>
+            SELECT ?z
+            WHERE {
+              ?x a opmw:WorkflowTemplate .
+              ?z opmw:isVariableOfTemplate ?x
+            }''')]
+    steps = [
+        s[0] for s in
+        graph.query('''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            PREFIX opmo: <http://openprovenance.org/model/opmo#>
+            SELECT ?z
+            WHERE {
+              ?x a opmw:WorkflowTemplate .
+              ?z opmw:isStepOfTemplate ?x
+            }''')]
+    accounts = [
+        a[0] for a in
+        graph.query('''
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX opmw: <http://www.opmw.org/ontology/>
+            PREFIX opmo: <http://openprovenance.org/model/opmo#>
+            SELECT ?z
+            WHERE {
+              ?x a opmw:WorkflowTemplate .
+              ?z opmw:correspondsToTemplate ?x
+            }''')]
+    return render_template(
+        '/search_template.html',
+        contributors=contributors, parameters=parameters,
+        data_variables=data_variables, steps=steps, accounts=accounts)
 
 # SPARQL
 
