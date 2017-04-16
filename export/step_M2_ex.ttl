@@ -1,0 +1,29 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ns: <http://purl.org/net/opmv/ns#> .
+@prefix opmo: <http://openprovenance.org/model/opmo#> .
+@prefix opmw: <http://www.opmw.org/ontology/> .
+@prefix p-plan: <http://purl.org/net/p-plan#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix this_project: <http://lvh.me/directed-study/harsh/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<lvh.me/execution-process/step_M2_ex> a ns:Process,
+        opmw:WorkflowExecutionProcess,
+        prov:Activity ;
+    rdfs:label "step_M2_ex"^^xsd:string ;
+    opmo:account <lvh.me/execution-account/Lucy_Experiment> ;
+    ns:used <lvh.me/execution-artifact/M1_op_ex>,
+        <lvh.me/execution-artifact/param_A_ex>,
+        <lvh.me/execution-artifact/var_A_ex> ;
+    opmw:correspondsToTemplateProcess this_project:step_M2 ;
+    opmw:hasExecutableComponent <M2.sh> .
+

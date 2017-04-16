@@ -269,6 +269,7 @@ class WorkflowExecutionProcess(RDFResource):
             process, OPMW.correspondsToTemplateProcess,
             self._template_process))
         # opmw:hasExecutableComponent
+        print(self._component)
         graph.add((process, OPMW.hasExecutableComponent, self._component))
         # opmw:used
         for artifact in self._used:

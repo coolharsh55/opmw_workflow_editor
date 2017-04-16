@@ -1,0 +1,29 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ns: <http://purl.org/net/opmv/ns#> .
+@prefix opmo: <http://openprovenance.org/model/opmo#> .
+@prefix opmw: <http://www.opmw.org/ontology/> .
+@prefix p-plan: <http://purl.org/net/p-plan#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix this_project: <http://lvh.me/directed-study/harsh/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<lvh.me/execution-account/ENTER_EXPERIMENT_LABEL> a opmo:Account,
+        opmw:WorkflowExecutionAccount,
+        prov:Bundle ;
+    rdfs:label "ENTER_EXPERIMENT_LABEL"^^xsd:string ;
+    opmw:correspondsToTemplate this_project:experiment_A ;
+    opmw:executedInWorkflowSystem <lvh.me/workflow-system/workflow-editor/> ;
+    opmw:hasExecutionDiagram <lvh.me:5000/export/images/ENTER_EXPERIMENT_LABEL.png> ;
+    opmw:hasStatus "ENTER_STATUS"^^xsd:string ;
+    opmw:overallEndTime "11/21/2016 18:37"^^xsd:dateTime ;
+    opmw:overallStartTime "11/21/2016 18:37"^^xsd:dateTime .
+

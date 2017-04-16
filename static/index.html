@@ -32,10 +32,10 @@
         <a href="/new_workflow/"><button class="ui green medium button">create new workflow</button></a>
     </div>
     <div class="ui bottom attached tab segment" data-tab="second">
-        <div id='workflow-list' class="ui bulleted list"></div>
+        <div id='execute-list' class="ui bulleted list"></div>
     </div>
     <div class="ui bottom attached tab segment" data-tab="third">
-
+        <div id='fork-list' class="ui bulleted list"></div>
     </div>
 </div>
 
@@ -58,10 +58,19 @@ $(document).ready(function() {
                 class: 'item',
             });
             div.append($('<a>', {
-                href: '/execute_workflow/' + workflow,
+                href: '/execute-workflow/' + workflow,
                 text: workflow
             }));
-            $('#workflow-list').append(div);
+            $('#execute-list').append(div);
+
+            var div = $('<div>', {
+                class: 'item',
+            });
+            div.append($('<a>', {
+                href: '/fork-workflow/' + workflow,
+                text: workflow
+            }));
+            $('#fork-list').append(div);
         });
     });
 });

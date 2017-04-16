@@ -79,10 +79,9 @@ var _link_cells = function(source_id, target_id) {
     var link = new joint.dia.Link({
         source: { id: source_id },
         target: { id: target_id },
-        smooth: true,
+        smooth: false,
         attrs: {
-            '.marker-target': { d: 'M 4 0 L 0 2 L 4 4 z', fill: '#7c68fc', stroke: '#7c68fc' },
-            '.connection': { stroke: '#7c68fc' }
+            '.marker-target': { d: 'M 4 0 L 0 2 L 4 4 z'}
         }});
     return link;
 };
@@ -160,8 +159,20 @@ var draw_graph = function(data) {
     //      outgoing: []
     //  }
     // }
+    // var data = _.cloneDeep(data);
+    console.log("data", data);
+    // return;
     var t_data = topological_sort(_.cloneDeep(data));
-    console.log(t_data);
+    console.log("topological sort", t_data);
+    // _.each(t_data, function(node_id) {
+    //     var corresponding_node = experiment_data_by_id[node_id];
+    //     _.each(corresponding_node.properties, function(property, label) {
+    //         if (label.indexOf('opmw:corresponds') >= 0) {
+    //             console.log(property);
+    //         }
+    //     });
+    // });
+    // return;
     var cells = [];
     var links = [];
     var cell_index = {};
@@ -176,8 +187,8 @@ var draw_graph = function(data) {
     _.each(t_data, function(node, label) {
         node = data[node];
         var prop = {
-            id: node._id,
-            label: node._id,
+            id: node.id,
+            label: node.id,
             type: node.type
         };
         var cell = null;
@@ -188,32 +199,32 @@ var draw_graph = function(data) {
             cell = _make_artifact(prop);
         }
         cells.push(cell);
-        cell_index[node._id] = cell.id;
+        cell_index[node.id] = cell.id;
     });
     _.each(t_data, function(node, label) {
         node = data[node];
         // console.log(node.incoming, node.outgoing);
         if (node.incoming.length == 0) {
-            links.push(_link_cells(rect.id, cell_index[node._id]));
+            links.push(_link_cells(rect.id, cell_index[node.id]));
         }
         if (node.incoming.length == 0 || node.outgoing.length == 0) {
             return;
         }
         _.each(node.incoming, function(source) {
-            links.push(_link_cells(cell_index[source], cell_index[node._id]));
+            links.push(_link_cells(cell_index[source], cell_index[node.id]));
         });
         _.each(node.outgoing, function(target) {
-            links.push(_link_cells(cell_index[node._id], cell_index[target]));
+            links.push(_link_cells(cell_index[node.id], cell_index[target]));
         });
     });
     // console.log(cells);
     // console.log(cells.length, links.length);
-    cells = cells.concat(links);
+    var all_cells = cells.concat(links);
     // console.log(cells.length);
 
     cells[0].position(200, 50);
 
-    graph.resetCells(cells);
+    graph.resetCells(all_cells);
 
     var graphLayout = new joint.layout.TreeLayout({
         graph: graph,
@@ -222,5 +233,13 @@ var draw_graph = function(data) {
         direction: 'B'
     });
     graphLayout.layout();
-    // rect.remove();
+    rect.remove();
+    _.each(cells, function(cell) {
+        graph.removeLinks(cell);
+    });
+    _.each(data, function(node, label) {
+        _.each(node.outgoing, function(target) {
+            graph.addCell(_link_cells(cell_index[node.id], cell_index[target]));
+        });
+    });
 }

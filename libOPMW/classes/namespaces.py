@@ -27,6 +27,8 @@ VANN = Namespace("http://purl.org/vocab/vann/")
 OPMO = Namespace("http://openprovenance.org/model/opmo#")
 PPLAN = Namespace("http://purl.org/net/p-plan#")
 
+this_project = Namespace("http://lvh.me/directed-study/harsh/")
+
 # declare namespace manager
 # the namespace manager makes it easy to write URIs
 # by binding a namespace with a variable, it acts like a python dictionary
@@ -47,3 +49,4 @@ namespace_manager.bind('dc', DC, override=False)
 namespace_manager.bind('dcterms', DCTERMS, override=False)
 namespace_manager.bind('void', VOID, override=False)
 namespace_manager.bind('opmv', OPMV, override=False)
+namespace_manager.bind('this_project', this_project, override=False)

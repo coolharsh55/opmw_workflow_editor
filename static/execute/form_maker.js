@@ -357,6 +357,9 @@ var save_form_for_execution_process = function() {
     div.append('<p>Execution Account properties have been validated and saved.</p>');
     form.prepend(div);
     form.addClass('success');
+
+    var data = make_diagram_data();
+    draw_graph(data);
 };
 
 var validate_form_for_execution_process = function() {
@@ -364,11 +367,15 @@ var validate_form_for_execution_process = function() {
     if (!$('#input-rdfs-label' + form_data._id).val()) {
         error_messages.push('label is not set');
     }
-    $.each($('#object-form input[name="executable-component' + form_data._id + '"]'), function() {
-        if(!$(this).val()) {
-            error_messages.push('executable component value not set');
-        }
-    });
+    if ($('#object-form input[name="executable-component' + form_data._id + '"]').length == 0) {
+        error_messages.push('executable components not set');
+    } else {
+        $.each($('#object-form input[name="executable-component' + form_data._id + '"]'), function() {
+            if(!$(this).val()) {
+                error_messages.push('executable component value not set');
+            }
+        });
+    }
     form_extra_properties.find('.field').each(function() {
         if (!$(this).find('input[name="property-uri"]').eq(0).val()) {
             error_messages.push('additional property uri is not set');
@@ -528,10 +535,13 @@ var save_form_for_execution_artifact = function() {
     $('#sidebar-artifact-label' + form_data._id).text(form_data.properties["rdfs:label"]);
 
     var div = $('<div>', { class: 'ui success message' });
-        div.append($('<div>', { class: 'header', text: 'Account saved successfully' }));
-        div.append('<p>Execution Account properties have been validated and saved.</p>');
-        form.prepend(div);
-        form.addClass('success');
+    div.append($('<div>', { class: 'header', text: 'Account saved successfully' }));
+    div.append('<p>Execution Account properties have been validated and saved.</p>');
+    form.prepend(div);
+    form.addClass('success');
+
+    var data = make_diagram_data();
+    draw_graph(data);
 };
 
 var validate_form_for_execution_artifact = function() {

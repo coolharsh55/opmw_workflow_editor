@@ -197,7 +197,7 @@ var serializer = {
             }
             var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
             var data = serializer.serialize();
-            // console.log("published", data);
+            console.log("published", data);
             var formdata = new FormData();
             // formdata.append("image", file);
             formdata.append("data", JSON.stringify(data));

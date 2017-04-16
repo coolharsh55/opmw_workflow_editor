@@ -51,6 +51,7 @@ from rdflib import URIRef, Literal
 from .namespaces import namespace_manager
 from .namespaces import RDF, RDFS, XSD
 from .namespaces import OPMW, PROV, PPLAN, DC, DCTERMS
+from .namespaces import this_project
 
 from .resource import RDFResource
 
@@ -73,6 +74,8 @@ class WorkflowTemplate(RDFResource):
         self._workflow_system = None
         self._template_diagram = None
         self._native_system_template = None
+
+        self._base_template = None
 
         # links
         self._data_variables = []
@@ -336,6 +339,21 @@ class WorkflowTemplate(RDFResource):
                     raise ValueError('failed to convert contributor to URI')
         self._execution_accounts = accounts
 
+    @property
+    def base_template(self):
+        return self._base_template
+
+    @base_template.setter
+    def base_template(self, value):
+        if isinstance(value, str):
+            self._base_template = URIRef(value)
+        elif isinstance(value, URIRef):
+            self._base_template = value
+        elif value is None:
+            self._base_template = None
+        else:
+            raise ValueError('template diagram must be empty or URI')
+
     def validate(self):
         """validate this template instance
         returns boolean result along with error message"""
@@ -398,6 +416,10 @@ class WorkflowTemplate(RDFResource):
         for step in self._steps:
             graph.add((template, OPMW.isStepOfTemplate, step))
 
+        # base template
+        graph.add((
+            template, this_project.isVariationOf, self._base_template))
+
         return graph
 
     def printobject(self):
@@ -438,7 +460,7 @@ class WorkflowTemplate(RDFResource):
             'isStepOfTemplate':
                 _handler_for_list_of_uris('steps'),
             'correspondsToTemplate':
-                _handler_for_list_of_uris('execution_accounts')
+                _handler_for_list_of_uris('execution_accounts'),
         }
 
         template = WorkflowTemplate()
@@ -460,7 +482,7 @@ class WorkflowTemplate(RDFResource):
             query_results = graph.query(query)
             for attrib_type, uri in query_results:
                 # DEBUG
-                print(attrib_type, uri)
+                print("Template Parse from Graph", attrib_type, uri)
                 for namespace in _namespaces:
                     if namespace in attrib_type:
                         attrib_type = attrib_type.split(namespace)[1]
@@ -471,6 +493,16 @@ class WorkflowTemplate(RDFResource):
             template.printobject()
         except Exception:
             raise
+
+        query = '''
+            SELECT ?x
+            WHERE {
+              %s <http://lvh.me/directed-study/harsh/isVariationOf> ?x
+            }''' % template_uri
+        query_results = list(graph.query(query))
+        if query_results:
+            variation_template = query_results[0][0]
+            template.base_template = variation_template
 
         return template
 

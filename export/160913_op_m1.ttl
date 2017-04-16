@@ -1,0 +1,28 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ns: <http://purl.org/net/opmv/ns#> .
+@prefix opmo: <http://openprovenance.org/model/opmo#> .
+@prefix opmw: <http://www.opmw.org/ontology/> .
+@prefix p-plan: <http://purl.org/net/p-plan#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<lvh.me/execution-artifact/160913_op_m1> a ns:Artifact,
+        opmw:WorkflowExecutionArtifact,
+        prov:Entity ;
+    rdfs:label "160913_op_m1"^^xsd:string ;
+    opmo:account <lvh.me/execution-account/EXP_160913> ;
+    opmw:correspondsToTemplateArtifact <http://lvh.me/directed-study/harsh/M1_op> ;
+    opmw:hasFileName "data_m1_160913.txt"^^xsd:string ;
+    opmw:hasLocation <lvh.me:5000/export/data/data_m1_160913.txt> ;
+    opmw:hasSize "1"^^xsd:int ;
+    opmw:wasGeneratedBy <lvh.me/execution-process/160913_step_m1> .
+

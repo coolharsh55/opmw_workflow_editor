@@ -121,6 +121,10 @@ def graph_workflow_template(data):
     # label
     graph.add((
         n_template, RDFS.label, Literal(template['properties']['rdfs:label'])))
+    # version
+    graph.add((
+        n_template, opmw.versionNumber, Literal(
+            template['properties']['opmw:versionNumber'])))
     # contributors
     for contributor in template['properties']['dcterms:contributors']:
         graph.add((
@@ -140,6 +144,52 @@ def graph_workflow_template(data):
     graph.add((
         n_template, opmw.createdInWorkflowSystem,
         URIRef(template['properties']['opmw:createdInWorkflowSystem'])))
+    # native system template
+    # graph.add((
+    #     n_template, opmw.hasNativeSystemTemplate, None))
+    # links
+
+    # for link_type, link_items in template['links'].items():
+    #     uri = opmw[link_type.split(':')[1]]
+    #     for link_item in link_items:
+    #         graph.add((
+    #             URIRef(this_project[link_item]),
+    #             uri, n_template))
+
+    return graph
+
+
+def graph_workflow_template_variation(data):
+    template = data['template']
+    graph = _graph_with_namespace()
+    # add the workflow template using it's label as the identifier
+    n_template = this_project[template['properties']['rdfs:label']]
+    graph.add((n_template, RDF.type, opmw.WorkflowTemplate))
+    graph.add((n_template, RDF.type, prov.Plan))
+    # label
+    graph.add((
+        n_template, RDFS.label, Literal(template['properties']['rdfs:label'])))
+    # contributors
+    for contributor in template['properties']['dcterms:contributors']:
+        graph.add((
+            n_template, dcterms.contributor,
+            URIRef(
+                this_project['people/{}'.format(
+                    contributor.replace(' ', '-'))])))
+    # documentation
+    graph.add((
+        n_template, opmw.hasDocumentation,
+        Literal(template['properties']['opmw:hasDocumentation'])))
+    # diagram
+    graph.add((
+        n_template, opmw.hasTemplateDiagram,
+        URIRef(this_project['images/{}'.format(template['image'])])))
+    # created in
+    graph.add((
+        n_template, opmw.createdInWorkflowSystem,
+        URIRef(template['properties']['opmw:createdInWorkflowSystem'])))
+    graph.add((
+        n_template, this_project['isVariationOf'], URIRef(data['base_template'])))
     # native system template
     # graph.add((
     #     n_template, opmw.hasNativeSystemTemplate, None))
@@ -241,6 +291,7 @@ def graph_step(step):
 
 type_mappings = {
     'opmw:WorkflowTemplate': graph_workflow_template,
+    'opmw:WorkflowTemplateVariation': graph_workflow_template_variation,
     'opmw:ParameterVariable': graph_parameter,
     'opmw:DataVariable': graph_variable,
     'opmw:WorkflowTemplateProcess': graph_step

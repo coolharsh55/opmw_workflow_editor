@@ -25,6 +25,8 @@ from libOPMW import classes as opmw
 
 from help_views import help_views
 
+import json_serializer
+
 # set the project root directory as the static folder, you can set others.
 app = Flask(
     __name__,
@@ -49,11 +51,53 @@ def create():
     return render_template('create/create.html')
 
 
+@app.route('/fork-workflow/<label>/')
+def fork(label):
+    if not check_template_exists(label):
+        return 'template does not exist', 404
+    return_val = get_template(label)
+    if return_val is None:
+        return 'error', 400
+    template_uri, data_vars, parameters, steps = return_val
+    try:
+        graph = get_graph()
+        data = json_serializer.resolve_links({
+            'base_template': template_uri,
+            'template': json_serializer.template(
+                opmw.WorkflowTemplate.parse_from_graph(graph, template_uri)),
+            'data_variables': {
+                str(label): json_serializer.variable(
+                    opmw.DataVariable.parse_from_graph(graph, uri))
+                for uri, label in data_vars
+            },
+            'parameter_variables': {
+                str(label): json_serializer.parameter(
+                    opmw.ParameterVariable.parse_from_graph(graph, uri))
+                for uri, label in parameters
+            },
+            'steps': {
+                str(label): json_serializer.step(
+                    opmw.WorkflowTemplateProcess.parse_from_graph(graph, uri))
+                for uri, label in steps
+            }
+        })
+        with open('/tmp/dump.json', 'w') as f:
+            json.dump(data, f)
+    except Exception:
+        raise
+    finally:
+        graph.close()
+
+    return render_template(
+        'fork/fork.html',
+        base_template=label, serialized_template=json.dumps(data))
+
+
 @app.route('/execute-workflow/<label>/')
 def execute(label):
 
     # FIXME
-    label = 'experiment_A'
+    # label = 'experiment_A'
     if not check_template_exists(label):
         return 'label does not exist', 404
     return_val = get_template(label)
@@ -145,6 +189,89 @@ def publish_workflowtemplate():
 
     # workflow template
     template_graph = type_mappings['opmw:WorkflowTemplate'](data)
+    append_graph(template_graph)
+    serialize_graph(template_graph, experiment_label)
+
+    # parameter variables
+    for label, item in data['parameter_variables'].items():
+        parameter = {}
+        parameter['rdfs:label'] = label
+        parameter['opmw:hasDimensionality'] = 0
+        parameter['opmw:isParameterOfTemplate'] = experiment_label
+        graph = type_mappings['opmw:ParameterVariable'](parameter)
+        append_graph(graph)
+        serialize_graph(graph, label)
+
+    # data variables
+    for label, item in data['data_variables'].items():
+        properties = item['properties']
+        data_variable = {}
+        data_variable['rdfs:label'] = label
+        data_variable['opmw:hasDimensionality'] =\
+            properties['opmw:hasDimensionality']
+        data_variable['opmw:isGeneratedBy'] =\
+            properties['opmw:wasGeneratedBy']
+        data_variable['opmw:isVariableOfTemplate'] = experiment_label
+        graph = type_mappings['opmw:DataVariable'](data_variable)
+        append_graph(graph)
+        serialize_graph(graph, label)
+
+    # steps
+    for label, item in data['steps'].items():
+        properties = item['properties']
+        step = {}
+        step['rdfs:label'] = label
+        step['opmw:isStepOfTemplate'] = experiment_label
+        step['opmw:uses'] = item['properties']['opmw:uses']
+        # step['opmw:uses'] = []
+        # for item_id in item['properties']['opmw:uses']:
+        #     flag_found = False
+        #     for data_variable in data['data_variables'].values():
+        #         if item_id == data_variable['_id']:
+        #             step['opmw:uses'].append(
+        #                 data_variable['properties']['rdfs:label'])
+        #             flag_found = True
+        #             break
+        #     if flag_found:
+        #         continue
+        #     for parameter in data['parameter_variables'].values():
+        #         if item_id == parameter['_id']:
+        #             step['opmw:uses'].append(
+        #                 parameter['properties']['rdfs:label'])
+        #             flag_found = True
+        #             break
+        #     if not flag_found:
+        #         print('error: {} not found for opmw:uses'.format(item_id))
+        graph = type_mappings['opmw:WorkflowTemplateProcess'](step)
+        append_graph(graph)
+        serialize_graph(graph, label)
+
+    # for item in data['objects'].values():
+    #     item_type = item['type']
+    #     graph = type_mappings[item_type](item)
+    #     append_graph(graph)
+    #     serialize_graph(graph, item['rdfs:label'])
+
+    return 'received data', 200
+
+
+@app.route('/publish/workflowtemplatevariation/', methods=['POST'])
+def publish_workflowtemplatevariation():
+
+    if not request.form:
+        return 'data is not in JSON', 400
+    data = json.loads(request.form.getlist('data')[0])
+
+    experiment_label = data['template']['properties']['rdfs:label']
+    filename = experiment_label + '.png'
+    data['template']['image'] = filename
+    file = request.files['image']
+    file.save(os.path.join('./export/images', filename))
+    print('./export/images/created {}'.format(filename))
+
+    # workflow template
+    template_graph = type_mappings['opmw:WorkflowTemplateVariation'](data)
+
     append_graph(template_graph)
     serialize_graph(template_graph, experiment_label)
 
@@ -390,6 +517,18 @@ def published_template(label):
     if not template_uri:
         return 'no template found', 400
 
+    # base_template_uri = list(graph.query('''
+    #     prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    #     prefix opmw: <http://www.opmw.org/ontology/>
+
+    #     SELECT ?s
+    #     WHERE {
+    #       ?s a opmw:WorkflowTemplate .
+    #       ?s  "%s"
+    #     }''' % label))
+    # if not template_uri:
+    #     return 'no template found', 400
+
     template_uri = template_uri[0][0]
     template = opmw.WorkflowTemplate.parse_from_graph(graph, template_uri)
     if not template:
@@ -407,7 +546,9 @@ def published_template(label):
         'parameter_variables': template.parameter_variables,
         'steps': template.steps,
         'execution_accounts': template.execution_accounts,
+        'base_template': template.base_template
     }
+    print('base template', template.base_template)
     for key, value in data_template.items():
         if not value:
             data_template[key] = 'N/A'
@@ -521,6 +662,14 @@ def published_template(label):
     #     'processes': data_processes
     # }
 
+    query = '''
+        SELECT ?x
+        WHERE {
+          ?x <http://lvh.me/directed-study/harsh/isVariationOf> <%s>
+        }''' % template_uri
+    variations = [result[0] for result in list(graph.query(query))]
+    print(variations)
+
     return render_template(
         '/published_template.html',
         template=data_template,
@@ -529,7 +678,8 @@ def published_template(label):
         steps=data_steps,
         accounts=data_accounts,
         artifacts=data_artifacts,
-        processes=data_processes)
+        processes=data_processes,
+        variations=variations)
     # return jsonify(data)
 
 
@@ -742,7 +892,7 @@ def published_execution_account(label):
 
     account_uri = account_uri[0][0]
     # FIXME
-    account_uri = 'lvh.me/execution-account/E_LABEL'
+    # account_uri = 'lvh.me/execution-account/E_LABEL'
     account = opmw.WorkflowExecutionAccount.parse_from_graph(
         graph, account_uri)
     if not account:

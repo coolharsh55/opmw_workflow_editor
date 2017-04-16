@@ -21,6 +21,9 @@
         <table class="ui compact striped table">
             <tbody>
                 <tr><td>label</td><td>{{ template.label }}</td></tr>
+                {% if template.base_template != 'N/A' %}
+                <tr><td>is variation of</td><td><a href="http://lvh.me:5000/published/template/{{ template.base_template.split('/')[-1] }}/">{{ template.base_template }}</a></td></tr>
+                {% endif %}
                 <tr>
                     <td>contributors</td>
                     <td>
@@ -61,6 +64,13 @@
                     {% for var in template.execution_accounts %}
                         <a href='{{ "http://lvh.me:5000/published/execution-account/" + var.split("/")[-1] + "/" }}'>{{ var }}</a><br/>
                     {%endfor%}
+                    </td>
+                </tr>
+                <tr><td>variations / forks</td>
+                    <td>
+                    {% for var in variations %}
+                    <a href='{{ "http://lvh.me:5000/published/template/" + var.split("/")[-1] + "/" }}'>{{ var }}</a><br/>
+                    {% endfor %}
                     </td>
                 </tr>
             </tbody>

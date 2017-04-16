@@ -152,7 +152,7 @@
             });
         }
         console.log(search_parameters);
-        if (Object.keys(search_parameters).length <= 1) {
+        if (Object.keys(search_parameters).length == 0) {
             alert('Please enter parameters for searching templates');
             return;
         } else {
@@ -189,6 +189,7 @@
                     template_label = template_label[template_label.length - 1];
                     $('#results').append("<p class='f3'><a href='http://lvh.me:5000/published/template/" + template_label + "/'>" + template_label + "</p>");
                 });
+                $('#results')[0].scrollIntoView(true);
             }
         });
     });

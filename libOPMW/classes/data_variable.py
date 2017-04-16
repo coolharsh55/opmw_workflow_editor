@@ -107,7 +107,8 @@ class DataVariable(RDFResource):
             try:
                 self.dimensionality = int(value)
             except ValueError:
-                raise ValueError('dimensionality must be a valid integer')
+                pass
+                # raise ValueError('dimensionality must be a valid integer')
 
     # opmw:isGeneratedBy
     # links the step which generated the data variable

@@ -1,0 +1,43 @@
+/* body */
+.column {
+    border: 1px solid black;
+    height: 90vh;
+}
+#col-objects {
+    background-color: #FFFDEF;
+}
+#col-form {
+    background-color: #F0FFF7;
+    overflow: scroll;
+}
+#col-diagram {
+    background-color: #FAF9FF;
+}
+
+/* sidebar items */
+.sidebar-item-heading {
+    font-size: 1.25em;
+    margin-top: 5px;
+}
+.sidebar-item-selected {
+    background-color: #CCC;
+}
+.sidebar-item-label {
+    color: blue;
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-size: 1em;
+    font-variant: small-caps;
+}
+.sidebar-item-label-flagged {
+    color: red;
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-size: 1em;
+    font-variant: small-caps;
+}
+.sidebar-template-uri {
+    color: darkgray;
+    font-size: 0.5em;
+    text-transform: lowercase;
+    padding-left: 5px;
+    font-variant: normal;
+}

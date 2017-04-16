@@ -1,0 +1,31 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix opmw: <http://www.opmw.org/ontology/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix this_project: <http://lvh.me/directed-study/harsh/> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+this_project:M1_op opmw:isVariableOfTemplate this_project:experiment_A .
+
+this_project:M2_op opmw:isVariableOfTemplate this_project:experiment_A .
+
+this_project:data_var_A opmw:isVariableOfTemplate this_project:experiment_A .
+
+this_project:param_var_A opmw:isParameterOfTemplate this_project:experiment_A .
+
+this_project:step_M1 opmw:isStepOfTemplate this_project:experiment_A .
+
+this_project:step_M2 opmw:isStepOfTemplate this_project:experiment_A .
+
+this_project:experiment_A a opmw:WorkflowTemplate,
+        prov:Plan ;
+    rdfs:label "experiment_A" ;
+    dcterms:contributor <http://lvh.me/directed-study/harsh/people/Harshvardhan-Pandit> ;
+    opmw:createdInWorkflowSystem <> ;
+    opmw:hasDocumentation "" ;
+    opmw:hasNativeSystemTemplate <> ;
+    opmw:hasTemplateDiagram <http://lvh.me/directed-study/harsh/images/experiment_A.png> .
+
